@@ -1,0 +1,184 @@
+2025-11-16 14:07:00,824 [INFO] trafficlens.gui - Sort column=GantryID_O ascending=True
+2025-11-16 14:14:35,951 [INFO] trafficlens.gui - Go to next page: 2
+2025-11-16 14:14:36,517 [INFO] trafficlens.gui - Go to next page: 3
+2025-11-16 14:14:36,896 [INFO] trafficlens.gui - Go to next page: 4
+2025-11-16 14:14:54,305 [INFO] trafficlens.gui - Sort column=DetectionTime_O ascending=True
+2025-11-16 14:14:59,993 [INFO] trafficlens.gui - Go to next page: 5
+2025-11-16 14:15:00,326 [INFO] trafficlens.gui - Go to next page: 6
+2025-11-16 14:15:00,640 [INFO] trafficlens.gui - Go to next page: 7
+2025-11-16 14:15:01,098 [INFO] trafficlens.gui - Go to next page: 8
+2025-11-16 14:15:01,472 [INFO] trafficlens.gui - Go to next page: 9
+2025-11-16 14:15:02,198 [INFO] trafficlens.gui - Go to previous page: 8
+2025-11-16 14:15:02,365 [INFO] trafficlens.gui - Go to previous page: 7
+2025-11-16 14:15:02,533 [INFO] trafficlens.gui - Go to previous page: 6
+2025-11-16 14:15:02,694 [INFO] trafficlens.gui - Go to previous page: 5
+2025-11-16 14:15:02,859 [INFO] trafficlens.gui - Go to previous page: 4
+2025-11-16 14:15:03,028 [INFO] trafficlens.gui - Go to previous page: 3
+2025-11-16 14:15:03,194 [INFO] trafficlens.gui - Go to previous page: 2
+2025-11-16 14:15:03,361 [INFO] trafficlens.gui - Go to previous page: 1
+2025-11-16 14:15:08,553 [INFO] trafficlens.gui - Sort column=VehicleType ascending=False
+2025-11-16 14:15:11,259 [INFO] trafficlens.gui - Sort column=VehicleType ascending=True
+2025-11-16 14:15:15,127 [INFO] trafficlens.gui - Reset view to original data
+2025-11-16 14:15:23,474 [INFO] trafficlens.gui - Sort column=TripInformation ascending=True
+2025-11-16 14:15:34,034 [INFO] trafficlens.gui - Sort column=DetectionTime_D ascending=True
+2025-11-16 14:15:38,635 [INFO] trafficlens.gui - Sort column=VehicleType ascending=True
+2025-11-16 14:15:42,480 [INFO] trafficlens.gui - Go to next page: 2
+2025-11-16 14:15:42,971 [INFO] trafficlens.gui - Go to next page: 3
+2025-11-16 14:15:43,156 [INFO] trafficlens.gui - Go to next page: 4
+2025-11-16 14:15:43,338 [INFO] trafficlens.gui - Go to next page: 5
+2025-11-16 14:15:43,503 [INFO] trafficlens.gui - Go to next page: 6
+2025-11-16 14:15:43,669 [INFO] trafficlens.gui - Go to next page: 7
+2025-11-16 14:15:43,829 [INFO] trafficlens.gui - Go to next page: 8
+2025-11-16 14:15:43,991 [INFO] trafficlens.gui - Go to next page: 9
+2025-11-16 14:15:44,155 [INFO] trafficlens.gui - Go to next page: 10
+2025-11-16 14:15:44,305 [INFO] trafficlens.gui - Go to next page: 11
+2025-11-16 14:15:44,436 [INFO] trafficlens.gui - Go to next page: 12
+2025-11-16 14:15:44,888 [INFO] trafficlens.gui - Go to previous page: 11
+2025-11-16 14:15:45,046 [INFO] trafficlens.gui - Go to previous page: 10
+2025-11-16 14:15:45,201 [INFO] trafficlens.gui - Go to previous page: 9
+2025-11-16 14:15:45,369 [INFO] trafficlens.gui - Go to previous page: 8
+2025-11-16 14:15:45,537 [INFO] trafficlens.gui - Go to previous page: 7
+2025-11-16 14:15:45,688 [INFO] trafficlens.gui - Go to previous page: 6
+2025-11-16 14:15:58,010 [INFO] trafficlens.gui - Search with keyword: 47.0
+2025-11-16 14:20:56,632 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 14:21:40,908 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120406.csv
+2025-11-16 14:22:15,430 [INFO] trafficlens.gui - Sort column=TripLength ascending=True
+2025-11-16 14:22:20,410 [INFO] trafficlens.gui - Search with keyword: 8.4
+2025-11-16 14:22:28,846 [INFO] trafficlens.gui - Search with keyword: 8.4
+2025-11-16 14:22:30,100 [INFO] trafficlens.gui - Search with keyword: 8.4
+2025-11-16 14:23:55,139 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 14:24:00,501 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120407.csv
+2025-11-16 14:24:03,666 [INFO] trafficlens.gui - Search with keyword: 
+2025-11-16 14:24:06,861 [INFO] trafficlens.gui - Merging CSV files: [WindowsPath('D:/PythonCoding/My_Git/TrafficLens/data/23120409.csv')]
+2025-11-16 14:24:07,269 [INFO] trafficlens.gui - Search with keyword: 
+2025-11-16 14:25:16,656 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 14:25:22,283 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120408.csv
+2025-11-16 14:25:44,162 [INFO] trafficlens.gui - Search with keyword: 8.4
+2025-11-16 14:27:21,119 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 14:28:32,451 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 14:28:53,974 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 14:32:55,481 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 14:33:03,064 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120406.csv
+2025-11-16 14:33:05,847 [INFO] trafficlens.gui - Header sort column=VehicleType ascending=True
+2025-11-16 14:33:06,840 [INFO] trafficlens.gui - Header sort column=VehicleType ascending=False
+2025-11-16 14:33:07,385 [INFO] trafficlens.gui - Header sort column=VehicleType ascending=True
+2025-11-16 14:33:07,758 [INFO] trafficlens.gui - Header sort column=VehicleType ascending=False
+2025-11-16 14:33:08,591 [INFO] trafficlens.gui - Header sort column=DetectionTime_O ascending=True
+2025-11-16 14:33:09,237 [INFO] trafficlens.gui - Header sort column=DetectionTime_O ascending=False
+2025-11-16 14:33:09,701 [INFO] trafficlens.gui - Header sort column=DetectionTime_O ascending=True
+2025-11-16 14:33:10,170 [INFO] trafficlens.gui - Header sort column=DetectionTime_O ascending=False
+2025-11-16 14:33:10,995 [INFO] trafficlens.gui - Header sort column=GantryID_O ascending=True
+2025-11-16 14:33:11,596 [INFO] trafficlens.gui - Header sort column=GantryID_O ascending=False
+2025-11-16 14:33:12,069 [INFO] trafficlens.gui - Header sort column=GantryID_O ascending=True
+2025-11-16 14:33:12,497 [INFO] trafficlens.gui - Header sort column=GantryID_O ascending=False
+2025-11-16 14:33:13,415 [INFO] trafficlens.gui - Header sort column=DetectionTime_D ascending=True
+2025-11-16 14:33:14,109 [INFO] trafficlens.gui - Header sort column=DetectionTime_D ascending=False
+2025-11-16 14:33:15,284 [INFO] trafficlens.gui - Header sort column=DetectionTime_D ascending=True
+2025-11-16 14:33:15,840 [INFO] trafficlens.gui - Header sort column=DetectionTime_D ascending=False
+2025-11-16 14:33:23,450 [INFO] trafficlens.gui - Header sort column=GantryID_D ascending=True
+2025-11-16 14:33:23,837 [INFO] trafficlens.gui - Header sort column=GantryID_D ascending=False
+2025-11-16 14:33:24,248 [INFO] trafficlens.gui - Header sort column=GantryID_D ascending=True
+2025-11-16 14:33:24,524 [INFO] trafficlens.gui - Header sort column=GantryID_D ascending=False
+2025-11-16 14:33:24,874 [INFO] trafficlens.gui - Header sort column=GantryID_D ascending=True
+2025-11-16 14:33:25,074 [INFO] trafficlens.gui - Header sort column=GantryID_D ascending=False
+2025-11-16 14:33:25,552 [INFO] trafficlens.gui - Header sort column=GantryID_D ascending=True
+2025-11-16 14:33:25,834 [INFO] trafficlens.gui - Header sort column=GantryID_D ascending=False
+2025-11-16 14:33:26,273 [INFO] trafficlens.gui - Header sort column=GantryID_D ascending=True
+2025-11-16 14:33:26,455 [INFO] trafficlens.gui - Header sort column=GantryID_D ascending=False
+2025-11-16 14:33:27,061 [INFO] trafficlens.gui - Header sort column=TripLength ascending=True
+2025-11-16 14:33:27,808 [INFO] trafficlens.gui - Header sort column=TripEnd ascending=True
+2025-11-16 14:33:28,240 [INFO] trafficlens.gui - Header sort column=TripEnd ascending=False
+2025-11-16 14:33:28,626 [INFO] trafficlens.gui - Header sort column=TripEnd ascending=True
+2025-11-16 14:33:29,005 [INFO] trafficlens.gui - Header sort column=TripEnd ascending=False
+2025-11-16 14:33:29,390 [INFO] trafficlens.gui - Header sort column=TripEnd ascending=True
+2025-11-16 14:33:29,701 [INFO] trafficlens.gui - Header sort column=TripEnd ascending=False
+2025-11-16 14:33:36,455 [INFO] trafficlens.gui - Import folder: D:\PythonCoding\My_Git\TrafficLens\data (16 files)
+2025-11-16 14:33:44,643 [INFO] trafficlens.gui - Header sort column=TripEnd ascending=True
+2025-11-16 14:33:45,605 [INFO] trafficlens.gui - Header sort column=TripEnd ascending=False
+2025-11-16 14:33:47,491 [INFO] trafficlens.gui - Header sort column=TripEnd ascending=True
+2025-11-16 14:33:49,882 [INFO] trafficlens.gui - Header sort column=TripEnd ascending=False
+2025-11-16 14:33:53,264 [INFO] trafficlens.gui - Header sort column=TripLength ascending=True
+2025-11-16 14:33:55,080 [INFO] trafficlens.gui - Header sort column=TripLength ascending=False
+2025-11-16 14:33:56,179 [INFO] trafficlens.gui - Header sort column=TripLength ascending=True
+2025-11-16 14:33:57,378 [INFO] trafficlens.gui - Header sort column=GantryID_D ascending=True
+2025-11-16 14:33:59,729 [INFO] trafficlens.gui - Header sort column=GantryID_D ascending=False
+2025-11-16 14:34:01,501 [INFO] trafficlens.gui - Header sort column=GantryID_D ascending=True
+2025-11-16 14:34:03,090 [INFO] trafficlens.gui - Header sort column=GantryID_O ascending=True
+2025-11-16 14:34:05,057 [INFO] trafficlens.gui - Header sort column=GantryID_O ascending=False
+2025-11-16 14:35:08,660 [INFO] trafficlens.gui - Header sort column=VehicleType ascending=True
+2025-11-16 14:35:09,907 [INFO] trafficlens.gui - Header sort column=VehicleType ascending=False
+2025-11-16 14:35:10,759 [INFO] trafficlens.gui - Header sort column=VehicleType ascending=True
+2025-11-16 14:35:11,525 [INFO] trafficlens.gui - Header sort column=VehicleType ascending=False
+2025-11-16 14:35:12,338 [INFO] trafficlens.gui - Header sort column=VehicleType ascending=True
+2025-11-16 14:35:13,076 [INFO] trafficlens.gui - Header sort column=VehicleType ascending=False
+2025-11-16 14:37:47,272 [INFO] trafficlens.gui - Header sort column=GantryID_D ascending=True
+2025-11-16 14:37:50,008 [INFO] trafficlens.gui - Header sort column=GantryID_D ascending=False
+2025-11-16 14:37:56,202 [INFO] trafficlens.gui - Go to next page: 2
+2025-11-16 14:37:56,853 [INFO] trafficlens.gui - Go to previous page: 1
+2025-11-16 14:38:01,115 [INFO] trafficlens.gui - Go to next page: 2
+2025-11-16 14:38:01,493 [INFO] trafficlens.gui - Go to next page: 3
+2025-11-16 14:38:05,410 [INFO] trafficlens.gui - Header sort column=TripLength ascending=True
+2025-11-16 14:38:08,289 [INFO] trafficlens.gui - Go to next page: 2
+2025-11-16 14:38:08,732 [INFO] trafficlens.gui - Go to next page: 3
+2025-11-16 14:38:09,092 [INFO] trafficlens.gui - Go to next page: 4
+2025-11-16 14:38:09,263 [INFO] trafficlens.gui - Go to next page: 5
+2025-11-16 14:38:09,435 [INFO] trafficlens.gui - Go to next page: 6
+2025-11-16 14:38:09,609 [INFO] trafficlens.gui - Go to next page: 7
+2025-11-16 14:38:09,753 [INFO] trafficlens.gui - Go to next page: 8
+2025-11-16 14:38:09,913 [INFO] trafficlens.gui - Go to next page: 9
+2025-11-16 14:38:10,066 [INFO] trafficlens.gui - Go to next page: 10
+2025-11-16 14:38:10,229 [INFO] trafficlens.gui - Go to next page: 11
+2025-11-16 14:38:10,385 [INFO] trafficlens.gui - Go to next page: 12
+2025-11-16 14:38:10,526 [INFO] trafficlens.gui - Go to next page: 13
+2025-11-16 14:38:16,896 [INFO] trafficlens.gui - Go to next page: 14
+2025-11-16 14:38:17,077 [INFO] trafficlens.gui - Go to next page: 15
+2025-11-16 14:38:17,251 [INFO] trafficlens.gui - Go to next page: 16
+2025-11-16 14:38:17,422 [INFO] trafficlens.gui - Go to next page: 17
+2025-11-16 14:38:17,574 [INFO] trafficlens.gui - Go to next page: 18
+2025-11-16 14:38:17,720 [INFO] trafficlens.gui - Go to next page: 19
+2025-11-16 14:38:17,857 [INFO] trafficlens.gui - Go to next page: 20
+2025-11-16 14:38:18,016 [INFO] trafficlens.gui - Go to next page: 21
+2025-11-16 14:38:18,169 [INFO] trafficlens.gui - Go to next page: 22
+2025-11-16 14:38:18,314 [INFO] trafficlens.gui - Go to next page: 23
+2025-11-16 14:38:18,466 [INFO] trafficlens.gui - Go to next page: 24
+2025-11-16 14:38:18,620 [INFO] trafficlens.gui - Go to next page: 25
+2025-11-16 14:38:18,762 [INFO] trafficlens.gui - Go to next page: 26
+2025-11-16 14:38:18,923 [INFO] trafficlens.gui - Go to next page: 27
+2025-11-16 14:38:19,076 [INFO] trafficlens.gui - Go to next page: 28
+2025-11-16 14:38:19,222 [INFO] trafficlens.gui - Go to next page: 29
+2025-11-16 14:38:19,620 [INFO] trafficlens.gui - Go to next page: 30
+2025-11-16 14:38:19,771 [INFO] trafficlens.gui - Go to next page: 31
+2025-11-16 14:38:19,925 [INFO] trafficlens.gui - Go to next page: 32
+2025-11-16 14:38:20,077 [INFO] trafficlens.gui - Go to next page: 33
+2025-11-16 14:38:20,209 [INFO] trafficlens.gui - Go to next page: 34
+2025-11-16 14:38:24,043 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 14:38:27,208 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 14:40:36,914 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 14:41:44,361 [INFO] trafficlens.gui - Import folder: D:\PythonCoding\My_Git\TrafficLens\data (16 files)
+2025-11-16 14:41:55,704 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120407.csv
+2025-11-16 14:42:06,096 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120410.csv
+2025-11-16 14:43:24,867 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 14:44:31,205 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120407.csv
+2025-11-16 14:45:33,638 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 14:45:39,392 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120409.csv
+2025-11-16 14:45:53,095 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120412.csv
+2025-11-16 14:46:04,148 [INFO] trafficlens.gui - Button sort column=TripLength ascending=True
+2025-11-16 14:46:26,579 [INFO] trafficlens.gui - Exporting current view to C:/Users/Akatsuky/Desktop/gahg.csv
+2025-11-16 14:49:43,291 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 14:49:58,752 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120408.csv
+2025-11-16 14:52:21,178 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 14:55:12,097 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 14:55:21,846 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120408.csv
+2025-11-16 14:58:52,057 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 15:00:41,166 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120407.csv
+2025-11-16 15:01:12,986 [INFO] trafficlens.gui - Search with keyword: 8.4
+2025-11-16 15:01:20,208 [INFO] trafficlens.gui - Search with keyword: 8.4
+2025-11-16 15:01:33,566 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 15:01:58,153 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 15:04:01,772 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 15:05:04,159 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120408.csv
+2025-11-16 15:05:16,064 [INFO] trafficlens.gui - Button sort column=GantryID_O ascending=True
+2025-11-16 15:05:18,697 [INFO] trafficlens.gui - Reset view to original data
+2025-11-16 15:06:23,164 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 15:06:29,626 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120408.csv
+2025-11-16 15:08:13,208 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
