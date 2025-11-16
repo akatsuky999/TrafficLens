@@ -1,6 +1,6 @@
 ## TrafficLens
 
-### Overview (English)
+### Overview
 
 TrafficLens is a Python-based desktop application for interactive exploration of traffic trajectory data.  
 It provides an Excel-like GUI built with Tkinter, plus a clean separation between GUI and data/analysis logic.
@@ -80,7 +80,7 @@ These columns are treated as different logical types (time, code, numeric, text)
     - If a plot is visible, it closes the plot and returns to the current table
     - In spatio-temporal mode, it can also restore the original traffic-record view
 
-### Installation and usage (English)
+### Installation and usage
 
 1. Install dependencies:
 
@@ -104,7 +104,7 @@ python main.py
 
 ---
 
-### 项目简介（中文）
+### 项目简介
 
 TrafficLens 是一个基于 Python 的交通数据查询与分析桌面应用，  
 使用 Tkinter 构建类 Excel 的图形界面，并将前端界面与后端数据逻辑清晰地解耦。
@@ -183,7 +183,7 @@ TrafficLens 是一个基于 Python 的交通数据查询与分析桌面应用，
     - 若当前有图像，则关闭图像返回表格视图
     - 若处于时空统计视图，可返回生成前的原始交通记录表
 
-### 安装与运行方式（中文）
+### 安装与运行方式
 
 1. 安装依赖：
 
