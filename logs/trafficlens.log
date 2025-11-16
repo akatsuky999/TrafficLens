@@ -182,3 +182,92 @@
 2025-11-16 15:06:23,164 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
 2025-11-16 15:06:29,626 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120408.csv
 2025-11-16 15:08:13,208 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 15:35:34,321 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 15:47:13,757 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 15:47:23,424 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120408.csv
+2025-11-16 15:52:46,104 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 15:52:49,674 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120408.csv
+2025-11-16 15:59:44,304 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 15:59:50,486 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120408.csv
+2025-11-16 16:09:59,302 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 16:10:02,235 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120408.csv
+2025-11-16 16:16:39,734 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 16:16:42,814 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120409.csv
+2025-11-16 16:22:30,988 [INFO] trafficlens.gui - Button sort column=TripLength ascending=True
+2025-11-16 16:22:32,108 [INFO] trafficlens.gui - Button sort column=TripLength ascending=False
+2025-11-16 16:22:34,279 [INFO] trafficlens.gui - Reset view to original data
+2025-11-16 16:23:21,798 [INFO] trafficlens.gui - Merging CSV files: [WindowsPath('D:/PythonCoding/My_Git/TrafficLens/data/23120417.csv')]
+2025-11-16 16:23:22,248 [INFO] trafficlens.gui - Search with keyword: 
+2025-11-16 16:23:26,001 [INFO] trafficlens.gui - Merging CSV files: [WindowsPath('D:/PythonCoding/My_Git/TrafficLens/data/23120421.csv')]
+2025-11-16 16:23:26,248 [INFO] trafficlens.gui - Search with keyword: 
+2025-11-16 16:23:29,487 [INFO] trafficlens.gui - Merging CSV files: [WindowsPath('D:/PythonCoding/My_Git/TrafficLens/data/23120406.csv')]
+2025-11-16 16:23:29,864 [INFO] trafficlens.gui - Search with keyword: 
+2025-11-16 16:24:28,326 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 16:25:21,879 [INFO] trafficlens.gui - Import folder: D:\PythonCoding\My_Git\TrafficLens\data (16 files)
+2025-11-16 16:26:46,946 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 16:26:49,768 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 16:26:52,202 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 16:26:57,331 [INFO] trafficlens.gui - Import folder: D:\PythonCoding\My_Git\TrafficLens\data (16 files)
+2025-11-16 16:27:10,324 [INFO] trafficlens.gui - Clearing all loaded data
+2025-11-16 16:27:30,861 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120410.csv
+2025-11-16 16:27:34,486 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120407.csv
+2025-11-16 16:27:41,267 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120410.csv
+2025-11-16 16:27:46,127 [INFO] trafficlens.gui - Merging CSV files: [WindowsPath('D:/PythonCoding/My_Git/TrafficLens/data/23120406.csv')]
+2025-11-16 16:27:46,423 [INFO] trafficlens.gui - Search with keyword: 
+2025-11-16 16:28:18,977 [INFO] trafficlens.gui - Button sort column=VehicleType ascending=True
+2025-11-16 16:28:20,820 [INFO] trafficlens.gui - Button sort column=TripLength ascending=True
+2025-11-16 16:28:24,270 [INFO] trafficlens.gui - Button sort column=VehicleType ascending=True
+2025-11-16 16:28:34,361 [INFO] trafficlens.gui - Button sort column=TripLength ascending=True
+2025-11-16 16:28:43,700 [INFO] trafficlens.gui - Reset view to original data
+2025-11-16 16:39:11,753 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 16:39:15,162 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 16:39:22,079 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120416.csv
+2025-11-16 16:39:54,186 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 16:49:21,897 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 16:49:26,533 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120410.csv
+2025-11-16 16:51:08,639 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 16:51:12,361 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120407.csv
+2025-11-16 16:55:30,015 [INFO] trafficlens.gui - Button sort column=DetectionTime_D ascending=True
+2025-11-16 16:55:32,116 [INFO] trafficlens.gui - Button sort column=GantryID_D ascending=False
+2025-11-16 16:55:33,811 [INFO] trafficlens.gui - Button sort column=DetectionTime_D ascending=True
+2025-11-16 16:55:35,905 [INFO] trafficlens.gui - Button sort column=GantryID_O ascending=True
+2025-11-16 16:55:40,233 [INFO] trafficlens.gui - Clearing all loaded data
+2025-11-16 16:55:44,880 [INFO] trafficlens.gui - Import folder: D:\PythonCoding\My_Git\TrafficLens\data (16 files)
+2025-11-16 17:03:29,016 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 17:04:27,178 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 17:16:09,578 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 17:16:13,080 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 17:16:21,596 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120406.csv
+2025-11-16 17:16:29,051 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 313 nodes
+2025-11-16 17:18:33,681 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 17:18:37,612 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 17:18:42,017 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120406.csv
+2025-11-16 17:18:48,910 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 12 time bins x 313 nodes
+2025-11-16 17:20:18,985 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 17:21:32,984 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 313 nodes
+2025-11-16 17:21:57,785 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 17:23:26,266 [INFO] trafficlens.gui - Clearing all loaded data
+2025-11-16 17:23:41,567 [INFO] trafficlens.gui - Import folder: D:\PythonCoding\My_Git\TrafficLens\data (16 files)
+2025-11-16 17:24:05,767 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 960 time bins x 339 nodes
+2025-11-16 17:25:13,352 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 17:25:22,260 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 17:25:39,579 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120407.csv
+2025-11-16 17:25:42,936 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 12 time bins x 327 nodes
+2025-11-16 17:26:04,306 [INFO] trafficlens.gui - Clearing all loaded data
+2025-11-16 17:26:09,799 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 17:26:27,381 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 17:26:31,736 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120408.csv
+2025-11-16 17:26:43,176 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 326 nodes
+2025-11-16 17:27:03,441 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 17:27:04,450 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 30 time bins x 326 nodes
+2025-11-16 17:28:06,779 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 17:28:21,605 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 17:29:20,651 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 17:29:24,658 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120410.csv
+2025-11-16 17:29:30,274 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 320 nodes
+2025-11-16 17:29:52,899 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 17:29:56,055 [INFO] trafficlens.gui - Clearing all loaded data
+2025-11-16 17:30:02,517 [INFO] trafficlens.gui - Import folder: D:\PythonCoding\My_Git\TrafficLens\data (16 files)
+2025-11-16 17:30:16,040 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 960 time bins x 339 nodes
+2025-11-16 17:31:08,236 [INFO] trafficlens.gui - Exporting current view to C:/Users/Akatsuky/Desktop/储存.csv
+2025-11-16 17:31:10,845 [INFO] trafficlens.gui - TrafficLens GUI window closed by user

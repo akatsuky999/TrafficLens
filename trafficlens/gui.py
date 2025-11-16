@@ -5,6 +5,7 @@ Tkinter GUI for TrafficLens.
 from __future__ import annotations
 
 import logging
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -12,9 +13,23 @@ import pandas as pd
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 from .config import DEFAULT_COLUMNS
 from .data_loader import TrafficDataStore
-from .stats import overview_stats, vehicle_type_counts, trip_length_stats
+from .stats import (
+    overview_stats,
+    vehicle_type_pie,
+    time_hist_5min,
+    trip_length_hist,
+    gantry_code_bar,
+)
+from .view_filters import build_view_hint, apply_view_filter, get_field_kind
+from .ST_generator import (
+    generate_spatiotemporal,
+    export_spatiotemporal_csv,
+    export_spatiotemporal_npy,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -54,17 +69,32 @@ class TrafficLensApp(tk.Tk):
         self.search_scope_var = tk.StringVar(value="全部字段")
         self.search_mode_var = tk.StringVar(value="模糊")
 
-        # Toolbar(tab) mode: '文件' / '操作' / '数据'
+        # Toolbar(tab) mode: '文件' / '操作' / '数据' / '视图' / '时空统计'
         self.toolbar_mode = tk.StringVar(value="操作")
+
+        # Columns currently shown in the main table view
+        self.table_columns = list(DEFAULT_COLUMNS)
+
+        # Spatio-temporal dataset (generated under '时空统计' tab)
+        self.st_df: Optional[pd.DataFrame] = None
+        self.st_prev_df: Optional[pd.DataFrame] = None
+        self.st_prev_page: int = 1
+        self.st_shape_info: str = ""
+
+        # Matplotlib canvas for in-window plotting (数据 tab)
+        self.plot_canvas: FigureCanvasTkAgg | None = None
 
         # Last search state (for highlighting and match count)
         self.last_search_keyword: Optional[str] = None
         self.last_search_column: Optional[str] = None
         self.last_search_strict: bool = False
         self.last_match_count: Optional[int] = None
-
         self._build_widgets()
         self._refresh_view()
+
+        # Properly terminate program when GUI window is closed
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
+
         logger.info("TrafficLens GUI started with no data loaded.")
 
     # ------------------------------------------------------------------ UI
@@ -104,7 +134,23 @@ class TrafficLensApp(tk.Tk):
             command=lambda: self._on_tab_click("数据"),
             width=8,
         )
-        self.data_tab_btn.pack(side=tk.LEFT)
+        self.data_tab_btn.pack(side=tk.LEFT, padx=(0, 4))
+
+        self.view_tab_btn = ttk.Button(
+            tab_frame,
+            text="视图",
+            command=lambda: self._on_tab_click("视图"),
+            width=8,
+        )
+        self.view_tab_btn.pack(side=tk.LEFT, padx=(0, 4))
+
+        self.st_tab_btn = ttk.Button(
+            tab_frame,
+            text="时空统计",
+            command=lambda: self._on_tab_click("时空统计"),
+            width=10,
+        )
+        self.st_tab_btn.pack(side=tk.LEFT)
 
         # Actual toolbar area under the tabs
         self.toolbar_frame = ttk.Frame(self)
@@ -112,8 +158,8 @@ class TrafficLensApp(tk.Tk):
         self._rebuild_toolbar()
 
         # Table frame
-        table_frame = ttk.Frame(self)
-        table_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=(0, 4))
+        self.table_frame = ttk.Frame(self)
+        self.table_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=(0, 4))
 
         # Excel-like Treeview style
         style = ttk.Style(self)
@@ -145,35 +191,17 @@ class TrafficLensApp(tk.Tk):
         )
 
         self.tree = ttk.Treeview(
-            table_frame,
-            columns=DEFAULT_COLUMNS,
+            self.table_frame,
+            columns=self.table_columns,
             show="headings",
             height=20,
             style="Excel.Treeview",
         )
 
-        # 为不同列设置更合适的初始宽度，最后一列 TripInformation 给更大空间
-        column_widths = {
-            "VehicleType": 90,
-            "DetectionTime_O": 160,
-            "GantryID_O": 110,
-            "DetectionTime_D": 160,
-            "GantryID_D": 110,
-            "TripLength": 90,
-            "TripEnd": 80,
-            "TripInformation": 420,
-        }
+        self._configure_table_columns()
 
-        for col in DEFAULT_COLUMNS:
-            # 先显示纯文本表头，排序由上方按钮触发
-            self.tree.heading(col, text=col)
-            width = column_widths.get(col, 120)
-            # 最后一列允许随窗口伸缩，便于查看长文本
-            stretch = col == "TripInformation"
-            self.tree.column(col, width=width, minwidth=80, anchor=tk.W, stretch=stretch)
-
-        vsb = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
-        hsb = ttk.Scrollbar(table_frame, orient="horizontal", command=self.tree.xview)
+        vsb = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.tree.yview)
+        hsb = ttk.Scrollbar(self.table_frame, orient="horizontal", command=self.tree.xview)
         self.tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
 
         # 条纹行效果，类似 Excel 交替行底色
@@ -190,8 +218,12 @@ class TrafficLensApp(tk.Tk):
         vsb.grid(row=0, column=1, sticky="ns")
         hsb.grid(row=1, column=0, sticky="ew")
 
-        table_frame.rowconfigure(0, weight=1)
-        table_frame.columnconfigure(0, weight=1)
+        self.table_frame.rowconfigure(0, weight=1)
+        self.table_frame.columnconfigure(0, weight=1)
+
+        # Plot frame (for in-window matplotlib figures, mainly used in 数据 tab)
+        self.plot_frame = ttk.Frame(self)
+        # 初始不显示绘图区域，只有在需要绘图时才 pack
 
         # Status and pagination controls
         status_frame = ttk.Frame(self)
@@ -200,6 +232,7 @@ class TrafficLensApp(tk.Tk):
         self.status_var = tk.StringVar()
         self.status_label = ttk.Label(status_frame, textvariable=self.status_var)
         self.status_label.pack(side=tk.LEFT)
+
 
         # Jump-to-page controls
         self.page_input_var = tk.StringVar(value="1")
@@ -244,7 +277,7 @@ class TrafficLensApp(tk.Tk):
         column = self.last_search_column
 
         for idx, (_, row) in enumerate(df.iterrows()):
-            values = [row.get(col, "") for col in DEFAULT_COLUMNS]
+            values = [row.get(col, "") for col in self.table_columns]
             tags = ["evenrow" if idx % 2 == 0 else "oddrow"]
 
             # Highlight rows that match the last search criteria
@@ -293,6 +326,10 @@ class TrafficLensApp(tk.Tk):
             )
             if self.last_match_count is not None and self.last_search_keyword:
                 text += f"；本次搜索匹配 {self.last_match_count} 条记录"
+        # Append spatio-temporal dataset shape info when available
+        if self.st_shape_info:
+            text += f"；{self.st_shape_info}"
+
         self.status_var.set(text)
 
         # 同步底部页码输入框
@@ -302,7 +339,7 @@ class TrafficLensApp(tk.Tk):
     def _ensure_data_loaded(self) -> bool:
         """Return True if data is available, otherwise show a hint and return False."""
         if self.store is None or self.store.dataframe.empty:
-            messagebox.showinfo("提示", "请先通过菜单“文件 -> 导入...”导入数据。")
+            messagebox.showinfo("提示", "请先在“文件”选项卡中导入数据。")
             return False
         return True
 
@@ -332,6 +369,9 @@ class TrafficLensApp(tk.Tk):
         ttk.Button(
             self.toolbar_frame, text="恢复原始顺序", command=self.on_reset
         ).pack(side=tk.LEFT, padx=(0, 4))
+        ttk.Button(
+            self.toolbar_frame, text="清除所有数据", command=self.on_clear_data
+        ).pack(side=tk.LEFT, padx=(8, 0))
 
     def _build_action_toolbar(self) -> None:
         """Toolbar content for '操作'选项卡：搜索 + 排序。"""
@@ -388,26 +428,146 @@ class TrafficLensApp(tk.Tk):
         ).pack(side=tk.LEFT, padx=(0, 4))
 
     def _build_data_toolbar(self) -> None:
-        """Toolbar content for '数据'选项卡：基本统计信息。"""
+        """Toolbar content for '数据'选项卡：选择字段并绘制统计图。"""
         self._clear_toolbar()
 
+        # Field selector
+        ttk.Label(self.toolbar_frame, text="字段:").pack(side=tk.LEFT)
+        self.data_field_var = tk.StringVar(value="VehicleType")
+        field_combo = ttk.Combobox(
+            self.toolbar_frame,
+            textvariable=self.data_field_var,
+            values=DEFAULT_COLUMNS,
+            state="readonly",
+            width=18,
+        )
+        field_combo.pack(side=tk.LEFT, padx=(4, 8))
+
         ttk.Button(
             self.toolbar_frame,
-            text="总体概览",
-            command=self.show_overview_stats,
+            text="绘制统计图",
+            command=self.on_plot_stats,
         ).pack(side=tk.LEFT, padx=(0, 4))
 
         ttk.Button(
             self.toolbar_frame,
-            text="按车型统计",
-            command=self.show_vehicle_stats,
+            text="关闭图表",
+            command=self._close_plot,
+        ).pack(side=tk.LEFT, padx=(4, 0))
+
+    def _build_view_toolbar(self) -> None:
+        """Toolbar content for '视图'选项卡：字段选择 + 显示范围过滤。"""
+        self._clear_toolbar()
+
+        # Field selector (DetectionTime_O, DetectionTime_D, VehicleType, TripLength)
+        ttk.Label(self.toolbar_frame, text="字段:").pack(side=tk.LEFT)
+        self.view_field_var = tk.StringVar(value="DetectionTime_O")
+        field_combo = ttk.Combobox(
+            self.toolbar_frame,
+            textvariable=self.view_field_var,
+            values=[
+                "DetectionTime_O",
+                "DetectionTime_D",
+                "VehicleType",
+                "TripLength",
+            ],
+            state="readonly",
+            width=15,
+        )
+        field_combo.pack(side=tk.LEFT, padx=(4, 8))
+        field_combo.bind("<<ComboboxSelected>>", lambda _e: self._update_view_controls())
+
+        # Container for dynamic range controls
+        self.view_controls_frame = ttk.Frame(self.toolbar_frame)
+        self.view_controls_frame.pack(side=tk.LEFT, padx=(4, 4))
+
+        # Variables for range inputs
+        self.view_value_var = tk.StringVar()
+        self.view_from_var = tk.StringVar()
+        self.view_to_var = tk.StringVar()
+
+        # Apply / clear buttons
+        ttk.Button(
+            self.toolbar_frame,
+            text="应用过滤",
+            command=self.on_apply_view_filter,
+        ).pack(side=tk.LEFT, padx=(4, 4))
+        ttk.Button(
+            self.toolbar_frame,
+            text="清除过滤",
+            command=self.on_clear_view_filter,
+        ).pack(side=tk.LEFT, padx=(0, 4))
+
+        # Info label
+        self.view_info_var = tk.StringVar()
+        ttk.Label(self.toolbar_frame, textvariable=self.view_info_var).pack(
+            side=tk.LEFT, padx=(8, 0)
+        )
+
+        # Initialize controls for default field
+        self._update_view_controls()
+
+    def _build_st_toolbar(self) -> None:
+        """Toolbar content for '时空统计'选项卡：选择时间列、节点列和时间粒度。"""
+        self._clear_toolbar()
+
+        # Time column selector (all columns that are likely time-like)
+        ttk.Label(self.toolbar_frame, text="时间列:").pack(side=tk.LEFT)
+        self.st_time_col_var = tk.StringVar(value="DetectionTime_O")
+        time_cols = [c for c in DEFAULT_COLUMNS if "Time" in c or "time" in c]
+        if not time_cols:
+            time_cols = DEFAULT_COLUMNS
+        time_combo = ttk.Combobox(
+            self.toolbar_frame,
+            textvariable=self.st_time_col_var,
+            values=time_cols,
+            state="readonly",
+            width=18,
+        )
+        time_combo.pack(side=tk.LEFT, padx=(4, 8))
+
+        # Node column selector (e.g. GantryID columns)
+        ttk.Label(self.toolbar_frame, text="节点列:").pack(side=tk.LEFT)
+        self.st_node_col_var = tk.StringVar(value="GantryID_O")
+        node_cols = [c for c in DEFAULT_COLUMNS if "GantryID" in c or "ID" in c]
+        if not node_cols:
+            node_cols = DEFAULT_COLUMNS
+        node_combo = ttk.Combobox(
+            self.toolbar_frame,
+            textvariable=self.st_node_col_var,
+            values=node_cols,
+            state="readonly",
+            width=18,
+        )
+        node_combo.pack(side=tk.LEFT, padx=(4, 8))
+
+        # Time granularity (minutes)
+        ttk.Label(self.toolbar_frame, text="粒度(min):").pack(side=tk.LEFT)
+        self.st_freq_var = tk.StringVar(value="5")
+        freq_entry = ttk.Entry(
+            self.toolbar_frame, textvariable=self.st_freq_var, width=6
+        )
+        freq_entry.pack(side=tk.LEFT, padx=(2, 8))
+
+        ttk.Button(
+            self.toolbar_frame, text="生成时空数据", command=self.on_generate_st
+        ).pack(side=tk.LEFT, padx=(0, 8))
+
+        ttk.Button(
+            self.toolbar_frame, text="导出 CSV", command=self.on_export_st_csv
+        ).pack(side=tk.LEFT, padx=(0, 4))
+        ttk.Button(
+            self.toolbar_frame, text="导出 NPY", command=self.on_export_st_npy
         ).pack(side=tk.LEFT, padx=(0, 4))
 
         ttk.Button(
-            self.toolbar_frame,
-            text="行程长度统计",
-            command=self.show_triplength_stats,
-        ).pack(side=tk.LEFT, padx=(0, 4))
+            self.toolbar_frame, text="关闭时空表", command=self.on_close_st_view
+        ).pack(side=tk.LEFT, padx=(4, 0))
+
+        self.st_info_var = tk.StringVar()
+        ttk.Label(self.toolbar_frame, textvariable=self.st_info_var).pack(
+            side=tk.LEFT, padx=(8, 0)
+        )
 
     def _rebuild_toolbar(self) -> None:
         mode = self.toolbar_mode.get()
@@ -415,8 +575,12 @@ class TrafficLensApp(tk.Tk):
             self._build_file_toolbar()
         elif mode == "操作":
             self._build_action_toolbar()
-        else:
+        elif mode == "数据":
             self._build_data_toolbar()
+        elif mode == "视图":
+            self._build_view_toolbar()
+        else:  # 时空统计
+            self._build_st_toolbar()
 
         # 更新 tab 高亮状态
         self._update_tab_styles()
@@ -435,14 +599,31 @@ class TrafficLensApp(tk.Tk):
             self.file_tab_btn.configure(style="TabActive.TButton")
             self.action_tab_btn.configure(style="Tab.TButton")
             self.data_tab_btn.configure(style="Tab.TButton")
+            self.view_tab_btn.configure(style="Tab.TButton")
         elif current == "操作":
             self.file_tab_btn.configure(style="Tab.TButton")
             self.action_tab_btn.configure(style="TabActive.TButton")
             self.data_tab_btn.configure(style="Tab.TButton")
-        else:  # 数据
+            self.view_tab_btn.configure(style="Tab.TButton")
+            self.st_tab_btn.configure(style="Tab.TButton")
+        elif current == "数据":
             self.file_tab_btn.configure(style="Tab.TButton")
             self.action_tab_btn.configure(style="Tab.TButton")
             self.data_tab_btn.configure(style="TabActive.TButton")
+            self.view_tab_btn.configure(style="Tab.TButton")
+            self.st_tab_btn.configure(style="Tab.TButton")
+        elif current == "视图":
+            self.file_tab_btn.configure(style="Tab.TButton")
+            self.action_tab_btn.configure(style="Tab.TButton")
+            self.data_tab_btn.configure(style="Tab.TButton")
+            self.view_tab_btn.configure(style="TabActive.TButton")
+            self.st_tab_btn.configure(style="Tab.TButton")
+        else:  # 时空统计
+            self.file_tab_btn.configure(style="Tab.TButton")
+            self.action_tab_btn.configure(style="Tab.TButton")
+            self.data_tab_btn.configure(style="Tab.TButton")
+            self.view_tab_btn.configure(style="Tab.TButton")
+            self.st_tab_btn.configure(style="TabActive.TButton")
 
     # ------------------------------------------------------------------ Data stats handlers
     def _get_current_dataframe(self) -> pd.DataFrame:
@@ -451,6 +632,413 @@ class TrafficLensApp(tk.Tk):
             return pd.DataFrame(columns=DEFAULT_COLUMNS)
         # current_df 可能已经被过滤/排序，这里按当前视图统计即可
         return self.current_df
+
+    def _configure_table_columns(self) -> None:
+        """
+        Configure Treeview columns/headings based on self.table_columns.
+
+        For the default traffic table we keep special widths; for other
+        tables (e.g. spatio-temporal) we use a compact, generic layout.
+        """
+        # Remove any previous column configuration
+        self.tree["columns"] = self.table_columns
+
+        # Default widths for original traffic columns
+        default_widths = {
+            "VehicleType": 90,
+            "DetectionTime_O": 160,
+            "GantryID_O": 110,
+            "DetectionTime_D": 160,
+            "GantryID_D": 110,
+            "TripLength": 90,
+            "TripEnd": 80,
+            "TripInformation": 420,
+        }
+
+        is_default = set(self.table_columns) == set(DEFAULT_COLUMNS)
+
+        for col in self.table_columns:
+            self.tree.heading(col, text=col)
+            if is_default:
+                width = default_widths.get(col, 120)
+                stretch = col == "TripInformation"
+            else:
+                # Spatio-temporal / other tables: compact columns
+                if col.lower().startswith("time"):
+                    width = 160
+                else:
+                    width = 80
+                stretch = False
+            self.tree.column(col, width=width, minwidth=60, anchor=tk.W, stretch=stretch)
+
+    def _update_view_controls(self) -> None:
+        """Rebuild view controls according to selected field."""
+        # Clear old controls
+        for child in self.view_controls_frame.winfo_children():
+            child.destroy()
+
+        df = self._get_current_dataframe()
+        col_name = self.view_field_var.get()
+
+        if df.empty or col_name not in df.columns:
+            self.view_info_var.set("当前无数据可用，请先导入。")
+            return
+
+        kind, hint, categories = build_view_hint(df, col_name)
+
+        # Categorical: choose one of the categories
+        if kind == "category":
+            unique_vals = categories or []
+            ttk.Label(self.view_controls_frame, text="值:").pack(side=tk.LEFT)
+            value_combo = ttk.Combobox(
+                self.view_controls_frame,
+                textvariable=self.view_value_var,
+                values=unique_vals,
+                state="readonly",
+                width=16,
+            )
+            value_combo.pack(side=tk.LEFT, padx=(2, 4))
+            self.view_info_var.set(hint)
+        else:
+            # Time or numeric: use from/to entries with hint of min/max
+            ttk.Label(self.view_controls_frame, text="From:").pack(side=tk.LEFT)
+            from_entry = ttk.Entry(
+                self.view_controls_frame, textvariable=self.view_from_var, width=14
+            )
+            from_entry.pack(side=tk.LEFT, padx=(2, 4))
+            ttk.Label(self.view_controls_frame, text="To:").pack(side=tk.LEFT)
+            to_entry = ttk.Entry(
+                self.view_controls_frame, textvariable=self.view_to_var, width=14
+            )
+            to_entry.pack(side=tk.LEFT, padx=(2, 4))
+            self.view_info_var.set(hint)
+
+    def _clear_plot_content(self) -> None:
+        """Remove existing matplotlib canvas and stats from the plot frame, but keep layout."""
+        if self.plot_canvas is not None:
+            widget = self.plot_canvas.get_tk_widget()
+            widget.destroy()
+            self.plot_canvas = None
+        for child in self.plot_frame.winfo_children():
+            child.destroy()
+
+    def _close_plot(self) -> None:
+        """Completely close the plot area and restore the table view."""
+        self._clear_plot_content()
+        self.plot_frame.pack_forget()
+        if not self.table_frame.winfo_ismapped():
+            self.table_frame.pack(
+                side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=(0, 4)
+            )
+
+    def _show_figure(self, fig, stats_text: str | None = None) -> None:
+        """Embed a matplotlib Figure and an optional stats panel into the GUI."""
+        # 清空旧内容，但保持 plot_frame 的布局状态
+        self._clear_plot_content()
+        if fig is None:
+            return
+
+        # 隐藏表格，让绘图区域占据其空间
+        if self.table_frame.winfo_ismapped():
+            self.table_frame.pack_forget()
+
+        self.plot_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=(0, 4))
+        self.plot_frame.columnconfigure(0, weight=3)
+        self.plot_frame.columnconfigure(1, weight=1)
+
+        # Figure on the left
+        self.plot_canvas = FigureCanvasTkAgg(fig, master=self.plot_frame)
+        self.plot_canvas.draw()
+        widget = self.plot_canvas.get_tk_widget()
+        widget.grid(row=0, column=0, sticky="nsew", padx=(0, 8), pady=4)
+
+        # Stats text on the right
+        if stats_text:
+            stats_label = ttk.Label(
+                self.plot_frame,
+                text=stats_text,
+                justify="left",
+                anchor="nw",
+            )
+            stats_label.grid(row=0, column=1, sticky="nsew", pady=4)
+
+    def on_plot_stats(self) -> None:
+        """根据字段类型调用后端统计绘图函数。"""
+        df = self._get_current_dataframe()
+        if df.empty:
+            messagebox.showinfo("统计", "当前没有数据可用于统计和绘图。")
+            return
+
+        col = getattr(self, "data_field_var", None)
+        col_name = col.get() if col is not None else None
+        if not col_name or col_name not in df.columns:
+            messagebox.showerror("错误", "请选择一个有效的字段。")
+            return
+
+        # 通用总体统计（行数 / 列数 / 车型数），融合到文本开头
+        ov = overview_stats(df)
+        overview_text = (
+            "Overview:\n"
+            f"  Rows: {ov['total_rows']}\n"
+            f"  Columns: {ov['total_cols']}\n"
+            f"  Vehicle types: {ov['distinct_vehicle_types']}\n\n"
+        )
+
+        try:
+            if col_name == "VehicleType":
+                result = vehicle_type_pie(df)
+                stats = result["stats"]
+                fig = result["figure"]
+                stats_text = overview_text + (
+                    "VehicleType stats:\n"
+                    f"Total samples: {stats['total']}\n"
+                    f"Unique types: {stats['n_unique']}\n\n"
+                    "Top classes:\n"
+                    + "\n".join(f"{k}: {v}" for k, v in stats['top_counts'].items())
+                )
+                self._show_figure(fig, stats_text)
+
+            elif col_name in ("DetectionTime_O", "DetectionTime_D"):
+                result = time_hist_5min(df, col_name)
+                stats = result["stats"]
+                fig = result["figure"]
+                stats_text = overview_text + (
+                    f"{col_name} time stats:\n"
+                    f"Valid timestamps: {stats['count']}\n"
+                    f"Start: {stats['start']}\n"
+                    f"End:   {stats['end']}\n"
+                )
+                self._show_figure(fig, stats_text)
+
+            elif col_name == "TripLength":
+                result = trip_length_hist(df)
+                if result is None:
+                    messagebox.showinfo("统计", "当前数据中没有有效的 TripLength 数值。")
+                    return
+                stats = result["stats"]
+                fig = result["figure"]
+                stats_text = overview_text + (
+                    "TripLength stats:\n"
+                    f"n:   {stats['count']:.0f}\n"
+                    f"min: {stats['min']:.2f}\n"
+                    f"mean:{stats['mean']:.2f}\n"
+                    f"std: {stats['std']:.2f}\n"
+                    f"max: {stats['max']:.2f}\n"
+                )
+                self._show_figure(fig, stats_text)
+
+            elif col_name in ("GantryID_O", "GantryID_D"):
+                result = gantry_code_bar(df, col_name)
+                stats = result["stats"]
+                fig = result["figure"]
+                stats_text = overview_text + (
+                    f"{col_name} stats:\n"
+                    f"Unique codes: {stats['n_unique']}\n"
+                    f"Top codes:\n"
+                    + "\n".join(f"{k}: {v}" for k, v in stats['top_counts'].items())
+                )
+                self._show_figure(fig, stats_text)
+
+            else:
+                messagebox.showinfo("统计", f"暂不支持字段 {col_name} 的专门统计图。")
+
+        except Exception as exc:
+            logger.exception("统计绘图失败: %s", exc)
+            messagebox.showerror("错误", f"统计绘图失败: {exc}")
+
+    def on_generate_st(self) -> None:
+        """Generate spatio-temporal dataset from current data."""
+        if self.store is None or self.store.dataframe.empty:
+            messagebox.showinfo("提示", "请先在“文件”选项卡中导入数据。")
+            return
+
+        base_df = self._get_current_dataframe()
+        time_col = self.st_time_col_var.get()
+        node_col = self.st_node_col_var.get()
+        freq_str = self.st_freq_var.get().strip()
+
+        if time_col not in base_df.columns or node_col not in base_df.columns:
+            messagebox.showerror("错误", "时间列或节点列无效。")
+            return
+        try:
+            freq_min = int(freq_str)
+            if freq_min <= 0:
+                raise ValueError
+        except ValueError:
+            messagebox.showerror("错误", "粒度必须是正整数（分钟）。")
+            return
+
+        # 更新状态栏提示
+        self.st_shape_info = ""
+        self.st_info_var.set("生成时空数据中，请稍候...")
+        self._update_status()
+
+        try:
+            st_df = generate_spatiotemporal(base_df, time_col, node_col, freq_min)
+        except Exception as exc:
+            logger.exception("生成时空数据失败: %s", exc)
+            messagebox.showerror("错误", f"生成时空数据失败: {exc}")
+            self.st_info_var.set("生成时空数据失败。")
+            self._update_status()
+            return
+
+        # Backup current view so we can restore it when closing ST view
+        self.st_prev_df = self.current_df.copy()
+        self.st_prev_page = self.current_page
+
+        # Store and display in main table view
+        self.st_df = st_df
+        logger.info(
+            "Generated spatio-temporal dataset: %d time bins x %d nodes",
+            st_df.shape[0],
+            st_df.shape[1],
+        )
+        self.current_df = st_df.reset_index()  # keep time_bin as a visible column
+        # Only show time_bin + first 10 nodes for table view
+        columns = list(self.current_df.columns)
+        if len(columns) > 11:
+            columns = columns[:11]  # time_bin + first 10 node columns
+            self.current_df = self.current_df[columns]
+        self.table_columns = columns
+        self._configure_table_columns()
+        self.current_page = 1
+        self._refresh_view()
+
+        # 在底部状态栏显示时空数据的整体形状
+        self.st_shape_info = (
+            f"Spatio-temporal dataset: {st_df.shape[0]} time bins x {st_df.shape[1]} nodes."
+        )
+        self.st_info_var.set(self.st_shape_info)
+        self._update_status()
+
+    def on_export_st_csv(self) -> None:
+        """Export the last generated spatio-temporal dataset as CSV."""
+        if self.st_df is None or self.st_df.empty:
+            messagebox.showinfo("提示", "尚未生成时空数据，无法导出。")
+            return
+        path = filedialog.asksaveasfilename(
+            title="导出时空数据为 CSV",
+            defaultextension=".csv",
+            filetypes=[("CSV 文件", "*.csv"), ("All Files", "*.*")],
+        )
+        if not path:
+            return
+        try:
+            export_spatiotemporal_csv(self.st_df, Path(path))
+            messagebox.showinfo("成功", f"已导出 CSV：\n{path}")
+        except Exception as exc:
+            logger.exception("导出时空 CSV 失败: %s", exc)
+            messagebox.showerror("错误", f"导出时空 CSV 失败: {exc}")
+
+    def on_export_st_npy(self) -> None:
+        """Export the last generated spatio-temporal dataset as NumPy .npy."""
+        if self.st_df is None or self.st_df.empty:
+            messagebox.showinfo("提示", "尚未生成时空数据，无法导出。")
+            return
+        path = filedialog.asksaveasfilename(
+            title="导出时空数据为 NPY",
+            defaultextension=".npy",
+            filetypes=[("NumPy NPY", "*.npy"), ("All Files", "*.*")],
+        )
+        if not path:
+            return
+        try:
+            export_spatiotemporal_npy(self.st_df, Path(path))
+            messagebox.showinfo("成功", f"已导出 NPY：\n{path}")
+        except Exception as exc:
+            logger.exception("导出时空 NPY 失败: %s", exc)
+            messagebox.showerror("错误", f"导出时空 NPY 失败: {exc}")
+
+    def on_close_st_view(self) -> None:
+        """Close the spatio-temporal table view and restore the previous data view."""
+        if self.st_prev_df is None:
+            messagebox.showinfo("提示", "当前没有可恢复的原始视图。")
+            return
+        logger.info("Closing spatio-temporal view and restoring previous table view")
+        self.current_df = self.st_prev_df
+        self.current_page = self.st_prev_page
+        # Restore default traffic columns configuration
+        self.table_columns = list(DEFAULT_COLUMNS)
+        self._configure_table_columns()
+        self._refresh_view()
+        self.st_shape_info = ""
+        self.st_info_var.set("已关闭时空表，恢复原始视图。")
+        self._update_status()
+
+    def on_apply_view_filter(self) -> None:
+        """Apply view filter based on selected field and range/value."""
+        if self.store is None or self.store.dataframe.empty:
+            messagebox.showinfo("提示", "请先在“文件”选项卡中导入数据。")
+            return
+
+        base_df = self.store.dataframe
+        col_name = self.view_field_var.get()
+        if not col_name or col_name not in base_df.columns:
+            messagebox.showerror("错误", "视图字段无效。")
+            return
+
+        try:
+            kind = get_field_kind(col_name)
+            if kind is None:
+                messagebox.showerror("错误", f"暂不支持字段 {col_name} 的视图过滤。")
+                return
+
+            value = self.view_value_var.get().strip()
+            from_str = self.view_from_var.get().strip()
+            to_str = self.view_to_var.get().strip()
+
+            filtered = apply_view_filter(
+                base_df, col_name, kind, value=value, from_str=from_str, to_str=to_str
+            )
+
+            self.current_df = filtered
+            self.current_page = 1
+            self._refresh_view()
+            self.view_info_var.set(
+                f"{col_name} filter applied: {len(filtered)} rows."
+            )
+        except Exception as exc:
+            logger.exception("视图过滤失败: %s", exc)
+            messagebox.showerror("错误", f"视图过滤失败: {exc}")
+
+    def on_clear_view_filter(self) -> None:
+        """Clear view filter and show full dataset from store."""
+        if self.store is None or self.store.dataframe.empty:
+            messagebox.showinfo("提示", "当前没有数据需要清除过滤。")
+            return
+        self.current_df = self.store.dataframe.copy()
+        self.current_page = 1
+        self.view_from_var.set("")
+        self.view_to_var.set("")
+        self.view_value_var.set("")
+        self._refresh_view()
+        self.view_info_var.set("视图过滤已清除。")
+
+    # ------------------------------------------------------------------ Window / lifecycle
+    def on_close(self) -> None:
+        """Handle window close: destroy GUI and terminate the process."""
+        logger.info("TrafficLens GUI window closed by user")
+        self.destroy()
+        # Explicitly exit so that the process terminates even if embedded elsewhere
+        sys.exit(0)
+
+    def on_clear_data(self) -> None:
+        """Clear all loaded data and reset the view."""
+        if not messagebox.askyesno("确认", "确定要清除当前加载的所有数据吗？"):
+            return
+        logger.info("Clearing all loaded data")
+        # Reset store and current dataframe
+        self.store = None
+        self.current_df = pd.DataFrame(columns=DEFAULT_COLUMNS)
+        self.current_page = 1
+        # Clear search / highlight / plot state
+        self.search_var.set("")
+        self.last_search_keyword = None
+        self.last_search_column = None
+        self.last_search_strict = False
+        self.last_match_count = None
+        self._close_plot()
+        self._refresh_view()
 
     def show_overview_stats(self) -> None:
         df = self._get_current_dataframe()
@@ -474,11 +1062,21 @@ class TrafficLensApp(tk.Tk):
         if df.empty:
             messagebox.showinfo("统计", "当前没有数据可用于统计。")
             return
-        counts = vehicle_type_counts(df)
-        lines = [f"{idx}: {val}" for idx, val in counts.items()]
-        msg = "按车型统计（VehicleType 频数）：\n\n" + "\n".join(lines[:50])
-        if len(lines) > 50:
-            msg += f"\n\n(仅显示前 50 项，共 {len(lines)} 项)"
+        # 复用绘图逻辑，但只用统计信息，不再绘图
+        try:
+            stats = vehicle_type_pie(df)
+        except Exception as exc:
+            logger.exception("VehicleType 统计失败: %s", exc)
+            messagebox.showerror("错误", f"VehicleType 统计失败: {exc}")
+            return
+
+        top_lines = [f"{k}: {v}" for k, v in stats["top_counts"].items()]
+        msg = (
+            "按车型统计（VehicleType 频数）：\n\n"
+            f"- 总样本数: {stats['total']}\n"
+            f"- 不同 VehicleType 数量: {stats['n_unique']}\n"
+            f"- 最常见的几类:\n  " + "\n  ".join(top_lines)
+        )
         messagebox.showinfo("统计 - 按车型", msg)
 
     def show_triplength_stats(self) -> None:
@@ -486,7 +1084,7 @@ class TrafficLensApp(tk.Tk):
         if df.empty:
             messagebox.showinfo("统计", "当前没有数据可用于统计。")
             return
-        stats = trip_length_stats(df)
+        stats = trip_length_hist(df)
         if stats is None:
             messagebox.showinfo("统计", "当前数据中没有有效的 TripLength 数值。")
             return
@@ -495,6 +1093,7 @@ class TrafficLensApp(tk.Tk):
             f"- 计数: {stats['count']:.0f}\n"
             f"- 最小值: {stats['min']:.2f}\n"
             f"- 平均值: {stats['mean']:.2f}\n"
+            f"- 标准差: {stats['std']:.2f}\n"
             f"- 最大值: {stats['max']:.2f}\n"
         )
         messagebox.showinfo("统计 - 行程长度", msg)
