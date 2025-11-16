@@ -5,7 +5,7 @@ Given a tabular traffic dataset, this module can aggregate traffic flow
 into a time x node matrix, where:
   - rows are time bins (e.g. every 5 minutes)
   - columns are node IDs (e.g. gantry codes)
-  - cell values are traffic counts (flows) in that bin at that node
+  - cell values are traffic counts (flows) in that bin at that node.
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ def generate_spatiotemporal(
     -------
     DataFrame
         Index: time bins (datetime)
-        Columns: sorted unique nodes
+        Columns: sorted unique nodes (str)
         Values: counts (int) = number of records in each bin/node.
     """
     if df is None or df.empty:
@@ -55,50 +55,23 @@ def generate_spatiotemporal(
     if time_series.isna().all():
         raise ValueError(f"Column {time_col} cannot be parsed as datetime.")
 
-    # Keep only valid timestamps
     valid_mask = time_series.notna()
     df_valid = df.loc[valid_mask].copy()
     time_series = time_series.loc[valid_mask]
 
-    # Floor to bins of freq_min minutes
     freq = f"{int(freq_min)}min"
     bins = time_series.dt.floor(freq)
 
-    # Group by (time_bin, node) and count
     df_grouped = (
         df_valid.groupby([bins, df_valid[node_col].astype(str)])
         .size()
         .unstack(fill_value=0)
     )
 
-    # Sort by time, then by node label
     df_grouped = df_grouped.sort_index()
     df_grouped = df_grouped.reindex(sorted(df_grouped.columns), axis=1)
     df_grouped.index.name = "time_bin"
 
     return df_grouped
-
-
-def export_spatiotemporal_csv(st_df: pd.DataFrame, path: Path) -> None:
-    """Export spatio-temporal DataFrame to CSV."""
-    if st_df is None or st_df.empty:
-        raise ValueError("Spatio-temporal dataframe is empty, nothing to export.")
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    st_df.to_csv(path, index=True, encoding="utf-8-sig")
-
-
-def export_spatiotemporal_npy(st_df: pd.DataFrame, path: Path) -> None:
-    """
-    Export spatio-temporal DataFrame as a NumPy .npy file.
-
-    The array shape will be (n_time_bins, n_nodes).
-    """
-    if st_df is None or st_df.empty:
-        raise ValueError("Spatio-temporal dataframe is empty, nothing to export.")
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    arr = st_df.to_numpy(dtype=np.int64, copy=True)
-    np.save(path, arr)
 
 

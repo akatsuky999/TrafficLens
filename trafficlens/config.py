@@ -18,8 +18,6 @@ DEFAULT_COLUMNS = [
     "TripInformation",
 ]
 
-# Column + logical type information, used for display / future processing.
-# Types: None (numeric or general), "time", "code", "text"
 TASKS = [
     ("VehicleType", None),
     ("DetectionTime_O", "time"),

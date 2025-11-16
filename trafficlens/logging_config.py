@@ -30,7 +30,6 @@ def setup_logging(level: int = logging.INFO) -> None:
     root = logging.getLogger()
     root.setLevel(level)
 
-    # Avoid adding duplicate handlers in interactive runs
     if not any(isinstance(h, RotatingFileHandler) for h in root.handlers):
         root.addHandler(console_handler)
         root.addHandler(file_handler)

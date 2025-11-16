@@ -12,11 +12,6 @@ from typing import Dict, List, Optional, Tuple
 import pandas as pd
 
 
-# We focus on four fields for view filtering:
-# - DetectionTime_O (time)
-# - DetectionTime_D (time)
-# - VehicleType     (category)
-# - TripLength      (numeric)
 
 FIELD_KINDS: Dict[str, str] = {
     "DetectionTime_O": "time",
@@ -97,7 +92,6 @@ def apply_view_filter(
 
     if kind == "category":
         if not value:
-            # No value selected -> no filtering
             return df.copy()
         mask = series.astype(str) == value
         return df[mask].copy()
@@ -134,7 +128,6 @@ def apply_view_filter(
             mask &= ser <= end_val
         return df[mask].copy()
 
-    # Unknown kind -> no filter
     return df.copy()
 
 

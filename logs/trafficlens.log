@@ -271,3 +271,200 @@
 2025-11-16 17:30:16,040 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 960 time bins x 339 nodes
 2025-11-16 17:31:08,236 [INFO] trafficlens.gui - Exporting current view to C:/Users/Akatsuky/Desktop/储存.csv
 2025-11-16 17:31:10,845 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 18:36:23,520 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 18:39:03,175 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120409.csv
+2025-11-16 18:39:37,496 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 327 nodes
+2025-11-16 18:39:45,916 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 18:39:56,643 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 18:40:04,891 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 18:40:22,074 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 18:40:25,848 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120409.csv
+2025-11-16 18:40:31,186 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 327 nodes
+2025-11-16 18:40:52,969 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 18:41:42,941 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 18:41:48,236 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120409.csv
+2025-11-16 18:42:22,705 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 327 nodes
+2025-11-16 18:43:18,049 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 18:43:30,939 [INFO] trafficlens.gui - Exporting current view to C:/Users/Akatsuky/Desktop/单独.csv
+2025-11-16 18:44:19,816 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 12 time bins x 327 nodes
+2025-11-16 18:44:20,821 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 18:44:36,250 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 18:44:42,767 [INFO] trafficlens.gui - Import file: C:\Users\Akatsuky\Desktop\单独.csv
+2025-11-16 18:44:50,708 [INFO] trafficlens.gui - Clearing all loaded data
+2025-11-16 18:45:11,204 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120407.csv
+2025-11-16 18:45:29,488 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 12 time bins x 327 nodes
+2025-11-16 18:46:30,737 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 18:46:38,075 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 18:50:27,849 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 395 time bins x 325 nodes
+2025-11-16 18:50:47,261 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 18:51:14,210 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 18:51:17,876 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120406.csv
+2025-11-16 18:51:26,109 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 313 nodes
+2025-11-16 18:51:50,547 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 18:52:12,757 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 18:53:29,378 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 313 nodes
+2025-11-16 18:53:48,037 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 18:54:38,016 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 18:54:41,721 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120407.csv
+2025-11-16 18:54:48,116 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 327 nodes
+2025-11-16 18:54:49,712 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 18:54:52,192 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 327 nodes
+2025-11-16 18:54:58,877 [INFO] trafficlens.gui - Closing flow plot and returning to spatio-temporal table view
+2025-11-16 18:55:00,033 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 18:56:17,534 [INFO] trafficlens.gui - Clearing all loaded data
+2025-11-16 18:56:22,626 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 18:56:44,483 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:01:55,505 [INFO] trafficlens.gui - Import folder: D:\PythonCoding\My_Git\TrafficLens\data (16 files)
+2025-11-16 19:02:18,058 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 960 time bins x 339 nodes
+2025-11-16 19:02:36,338 [ERROR] trafficlens.gui - 流量图绘制失败: node_index must be in [1, 339].
+Traceback (most recent call last):
+  File "D:\PythonCoding\My_Git\TrafficLens\trafficlens\gui.py", line 943, in on_plot_flow
+    result = flow_timeseries(self.st_df, node_idx)
+  File "D:\PythonCoding\My_Git\TrafficLens\trafficlens\stats.py", line 361, in flow_timeseries
+    raise ValueError(f"node_index must be in [1, {len(cols)}].")
+ValueError: node_index must be in [1, 339].
+2025-11-16 19:02:39,241 [INFO] trafficlens.gui - Closing flow plot and returning to spatio-temporal table view
+2025-11-16 19:02:39,870 [ERROR] trafficlens.gui - 流量图绘制失败: node_index must be in [1, 339].
+Traceback (most recent call last):
+  File "D:\PythonCoding\My_Git\TrafficLens\trafficlens\gui.py", line 943, in on_plot_flow
+    result = flow_timeseries(self.st_df, node_idx)
+  File "D:\PythonCoding\My_Git\TrafficLens\trafficlens\stats.py", line 361, in flow_timeseries
+    raise ValueError(f"node_index must be in [1, {len(cols)}].")
+ValueError: node_index must be in [1, 339].
+2025-11-16 19:02:52,054 [ERROR] trafficlens.gui - 流量图绘制失败: node_index must be in [1, 339].
+Traceback (most recent call last):
+  File "D:\PythonCoding\My_Git\TrafficLens\trafficlens\gui.py", line 943, in on_plot_flow
+    result = flow_timeseries(self.st_df, node_idx)
+  File "D:\PythonCoding\My_Git\TrafficLens\trafficlens\stats.py", line 361, in flow_timeseries
+    raise ValueError(f"node_index must be in [1, {len(cols)}].")
+ValueError: node_index must be in [1, 339].
+2025-11-16 19:02:59,435 [ERROR] trafficlens.gui - 流量图绘制失败: node_index must be in [1, 339].
+Traceback (most recent call last):
+  File "D:\PythonCoding\My_Git\TrafficLens\trafficlens\gui.py", line 943, in on_plot_flow
+    result = flow_timeseries(self.st_df, node_idx)
+  File "D:\PythonCoding\My_Git\TrafficLens\trafficlens\stats.py", line 361, in flow_timeseries
+    raise ValueError(f"node_index must be in [1, {len(cols)}].")
+ValueError: node_index must be in [1, 339].
+2025-11-16 19:03:20,854 [INFO] trafficlens.gui - Closing flow plot and returning to spatio-temporal table view
+2025-11-16 19:03:21,393 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:03:22,176 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:03:22,914 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 19:03:28,847 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:03:35,767 [INFO] trafficlens.gui - Import folder: D:\PythonCoding\My_Git\TrafficLens\data (16 files)
+2025-11-16 19:03:49,964 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 1920 time bins x 339 nodes
+2025-11-16 19:04:38,268 [INFO] trafficlens.gui - Closing flow plot and returning to spatio-temporal table view
+2025-11-16 19:04:53,609 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:04:56,584 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 11520 time bins x 339 nodes
+2025-11-16 19:05:15,361 [INFO] trafficlens.gui - Closing flow plot and returning to spatio-temporal table view
+2025-11-16 19:05:16,130 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:05:21,512 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 192 time bins x 339 nodes
+2025-11-16 19:05:38,656 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 19:07:40,385 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:07:49,646 [INFO] trafficlens.gui - Import folder: D:\PythonCoding\My_Git\TrafficLens\data (16 files)
+2025-11-16 19:08:03,089 [INFO] trafficlens.gui - Button sort column=GantryID_D ascending=True
+2025-11-16 19:10:07,043 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 19:12:05,245 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:12:18,781 [INFO] trafficlens.gui - Import folder: D:\PythonCoding\My_Git\TrafficLens\data (16 files)
+2025-11-16 19:12:32,437 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 192 time bins x 339 nodes
+2025-11-16 19:13:51,833 [INFO] trafficlens.gui - Closing flow plot and returning to spatio-temporal table view
+2025-11-16 19:13:52,160 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:13:53,585 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:14:19,489 [INFO] trafficlens.gui - Closing flow plot and returning to spatio-temporal table view
+2025-11-16 19:14:25,216 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 192 time bins x 339 nodes
+2025-11-16 19:16:20,230 [INFO] trafficlens.gui - Closing flow plot and returning to spatio-temporal table view
+2025-11-16 19:16:21,343 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:18:05,105 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 19:18:08,762 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:18:15,376 [INFO] trafficlens.gui - Import folder: D:\PythonCoding\My_Git\TrafficLens\data (16 files)
+2025-11-16 19:18:37,958 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 192 time bins x 339 nodes
+2025-11-16 19:20:34,047 [INFO] trafficlens.gui - Closing flow plot and returning to spatio-temporal table view
+2025-11-16 19:20:34,937 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:20:50,562 [INFO] trafficlens.gui - Search with keyword: 526
+2025-11-16 19:20:55,683 [INFO] trafficlens.gui - Search with keyword: 52
+2025-11-16 19:21:14,251 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:21:19,799 [INFO] trafficlens.gui - Import folder: D:\PythonCoding\My_Git\TrafficLens\data (16 files)
+2025-11-16 19:21:33,340 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 192 time bins x 339 nodes
+2025-11-16 19:21:55,782 [INFO] trafficlens.gui - Closing flow plot and returning to spatio-temporal table view
+2025-11-16 19:21:57,073 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:22:00,486 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 960 time bins x 339 nodes
+2025-11-16 19:24:31,052 [INFO] trafficlens.gui - Closing flow plot and returning to spatio-temporal table view
+2025-11-16 19:24:41,490 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:24:43,709 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 96 time bins x 339 nodes
+2025-11-16 19:26:05,131 [INFO] trafficlens.gui - Clearing all loaded data
+2025-11-16 19:26:08,902 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:26:12,424 [INFO] trafficlens.gui - Clearing all loaded data
+2025-11-16 19:26:14,745 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:26:54,586 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:26:55,576 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:26:57,978 [INFO] trafficlens.gui - Clearing all loaded data
+2025-11-16 19:27:05,361 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120407.csv
+2025-11-16 19:27:08,720 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 12 time bins x 327 nodes
+2025-11-16 19:27:22,135 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 19:27:27,277 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:27:30,408 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120408.csv
+2025-11-16 19:27:35,729 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 326 nodes
+2025-11-16 19:28:09,002 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 19:28:56,517 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:32:01,125 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:32:11,689 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120410.csv
+2025-11-16 19:32:19,545 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 12 time bins x 320 nodes
+2025-11-16 19:32:20,707 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:32:21,510 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 12 time bins x 320 nodes
+2025-11-16 19:34:01,421 [INFO] trafficlens.gui - Closing embedded plot and returning to table view
+2025-11-16 19:34:04,726 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:34:05,487 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 320 nodes
+2025-11-16 19:34:21,896 [INFO] trafficlens.gui - Closing embedded plot and returning to table view
+2025-11-16 19:34:22,080 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:34:23,479 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 19:34:29,708 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:34:33,079 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120407.csv
+2025-11-16 19:34:37,722 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 327 nodes
+2025-11-16 19:37:56,746 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 19:38:00,387 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:38:03,783 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120407.csv
+2025-11-16 19:38:11,201 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 327 nodes
+2025-11-16 19:41:39,256 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:41:42,689 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120408.csv
+2025-11-16 19:41:50,029 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 326 nodes
+2025-11-16 19:42:48,066 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 19:43:44,035 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:43:47,189 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120412.csv
+2025-11-16 19:43:54,025 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 12 time bins x 321 nodes
+2025-11-16 19:44:04,118 [INFO] trafficlens.gui - Closing embedded plot and returning to table view
+2025-11-16 19:44:05,222 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:44:08,415 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:44:25,188 [INFO] trafficlens.gui - Closing embedded plot and returning to table view
+2025-11-16 19:44:25,804 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:44:51,832 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:44:54,659 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120409.csv
+2025-11-16 19:44:57,818 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 12 time bins x 327 nodes
+2025-11-16 19:45:21,910 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:45:25,080 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120409.csv
+2025-11-16 19:45:28,959 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 12 time bins x 327 nodes
+2025-11-16 19:45:39,527 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:45:45,822 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 30 time bins x 327 nodes
+2025-11-16 19:45:55,076 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 19:48:43,910 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:48:47,110 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120407.csv
+2025-11-16 19:48:53,497 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 327 nodes
+2025-11-16 19:49:00,256 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 30 time bins x 327 nodes
+2025-11-16 19:49:09,012 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 12 time bins x 327 nodes
+2025-11-16 19:49:12,625 [INFO] trafficlens.gui - Closing embedded plot and returning to table view
+2025-11-16 19:49:16,982 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 19:54:48,905 [INFO] trafficlens.gui - Closing embedded plot and returning to table view
+2025-11-16 19:55:00,779 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:55:04,049 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120412.csv
+2025-11-16 19:55:08,960 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 60 time bins x 321 nodes
+2025-11-16 19:57:16,701 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 19:57:40,173 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120410.csv
+2025-11-16 19:57:47,595 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 12 time bins x 320 nodes
+2025-11-16 20:04:24,173 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 20:04:53,877 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120409.csv
+2025-11-16 20:05:14,772 [INFO] trafficlens.gui - Closing embedded plot and returning to table view
+2025-11-16 20:05:19,554 [INFO] trafficlens.gui - TrafficLens GUI window closed by user
+2025-11-16 20:09:46,829 [INFO] trafficlens.gui - TrafficLens GUI started with no data loaded.
+2025-11-16 20:09:52,909 [INFO] trafficlens.gui - Import file: D:\PythonCoding\My_Git\TrafficLens\data\23120418.csv
+2025-11-16 20:09:57,119 [INFO] trafficlens.gui - Generated spatio-temporal dataset: 12 time bins x 322 nodes
+2025-11-16 20:10:12,419 [INFO] trafficlens.gui - Closing embedded plot and returning to table view
+2025-11-16 20:10:18,288 [INFO] trafficlens.gui - Closing spatio-temporal view and restoring previous table view
+2025-11-16 20:10:55,581 [INFO] trafficlens.gui - TrafficLens GUI window closed by user

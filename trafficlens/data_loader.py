@@ -8,9 +8,24 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 import pandas as pd
 
 from .config import DATA_DIR, DEFAULT_COLUMNS
+
+
+def _read_single_csv(path: Path) -> pd.DataFrame:
+    """
+    Helper for fast CSV loading.
+
+    - Uses dtype=str to避免推断类型的开销（后续按需再转换）。
+    - 如果列数匹配 DEFAULT_COLUMNS，则自动赋列名。
+    """
+    df = pd.read_csv(path, header=None, dtype=str)
+    if len(df.columns) == len(DEFAULT_COLUMNS):
+        df.columns = DEFAULT_COLUMNS
+    return df
 
 
 @dataclass
@@ -27,15 +42,39 @@ class TrafficDataStore:
 
     @classmethod
     def from_files(cls, files: List[Path]) -> "TrafficDataStore":
-        frames: List[pd.DataFrame] = []
+        """
+        Load multiple CSV files into a single DataFrame.
+
+        对于文件数较多的情况，使用多线程并发读取以提升 I/O 吞吐。
+        """
+        paths: List[Path] = []
         for f in files:
             p = Path(f)
-            if not p.exists():
-                continue
-            df = pd.read_csv(p, header=None)
-            if len(df.columns) == len(DEFAULT_COLUMNS):
-                df.columns = DEFAULT_COLUMNS
-            frames.append(df)
+            if p.exists():
+                paths.append(p)
+
+        if not paths:
+            return cls(pd.DataFrame(columns=DEFAULT_COLUMNS))
+
+        frames: List[pd.DataFrame] = []
+
+        if len(paths) < 8:
+            for p in paths:
+                try:
+                    frames.append(_read_single_csv(p))
+                except Exception:
+                    continue
+        else:
+            max_workers = min(8, len(paths))
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                future_map = {executor.submit(_read_single_csv, p): p for p in paths}
+                for fut in as_completed(future_map):
+                    try:
+                        df = fut.result()
+                        frames.append(df)
+                    except Exception:
+                        continue
+
         combined = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame(
             columns=DEFAULT_COLUMNS
         )
@@ -60,7 +99,6 @@ class TrafficDataStore:
             return self.dataframe.copy()
         keyword_lower = str(keyword).lower()
 
-        # 搜索指定列
         if column:
             if column not in self.dataframe.columns:
                 return self.dataframe.iloc[0:0].copy()
@@ -71,7 +109,6 @@ class TrafficDataStore:
                 mask = ser_str.str.lower().str.contains(keyword_lower, na=False)
             return self.dataframe[mask].copy()
 
-        # 全局搜索：遍历所有字符串列
         mask = pd.Series(False, index=self.dataframe.index)
         for col in self.dataframe.columns:
             if self.dataframe[col].dtype == object:

@@ -11,14 +11,13 @@ from __future__ import annotations
 from typing import Dict, Optional
 
 from matplotlib import font_manager
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from pathlib import Path
 
 
-# ---------------------------------------------------------------------------
-# Global plotting style (journal-like)
-# ---------------------------------------------------------------------------
 
 plt.style.use("seaborn-v0_8-whitegrid")
 plt.rcParams.update(
@@ -34,13 +33,11 @@ plt.rcParams.update(
     }
 )
 
-# Try to use a custom font from the project Fonts directory (if available)
 try:
     project_root = Path(__file__).resolve().parent.parent
     fonts_dir = project_root / "Fonts"
     custom_font: Optional[Path] = None
 
-    # Prefer JetBrainsMono-Regular if present, otherwise first TTF
     preferred = fonts_dir / "JetBrainsMono-Regular.ttf"
     if preferred.exists():
         custom_font = preferred
@@ -54,7 +51,6 @@ try:
         prop = font_manager.FontProperties(fname=str(custom_font))
         plt.rcParams["font.family"] = prop.get_name()
 except Exception:
-    # Fallback to default matplotlib font if anything goes wrong
     pass
 
 
@@ -82,9 +78,6 @@ def overview_stats(df: pd.DataFrame) -> Dict[str, int]:
     }
 
 
-# ---------------------------------------------------------------------------
-# Categorical: VehicleType
-# ---------------------------------------------------------------------------
 
 def vehicle_type_pie(df: pd.DataFrame) -> Dict[str, object]:
     """
@@ -101,7 +94,6 @@ def vehicle_type_pie(df: pd.DataFrame) -> Dict[str, object]:
     if counts.empty:
         raise ValueError("No valid data in VehicleType column.")
 
-    # Pie chart
     fig, ax = plt.subplots(figsize=(5, 5))
     counts.plot(
         kind="pie",
@@ -114,7 +106,6 @@ def vehicle_type_pie(df: pd.DataFrame) -> Dict[str, object]:
     ax.set_ylabel("")
     ax.set_title("VehicleType distribution")
 
-    # Stats box
     total = int(counts.sum())
     n_unique = int(counts.size)
     top_counts = counts.head(5).to_dict()
@@ -141,9 +132,6 @@ def vehicle_type_pie(df: pd.DataFrame) -> Dict[str, object]:
     }
 
 
-# ---------------------------------------------------------------------------
-# Time-like: DetectionTime_O / DetectionTime_D
-# ---------------------------------------------------------------------------
 
 def time_hist_5min(df: pd.DataFrame, col: str) -> Dict[str, object]:
     """
@@ -161,7 +149,6 @@ def time_hist_5min(df: pd.DataFrame, col: str) -> Dict[str, object]:
     if dt.empty:
         raise ValueError(f"No valid datetime values in column {col}.")
 
-    # Group by 5-minute intervals
     bins = dt.dt.floor("5min")
     counts = bins.value_counts().sort_index()
 
@@ -171,7 +158,6 @@ def time_hist_5min(df: pd.DataFrame, col: str) -> Dict[str, object]:
     ax.set_xlabel("Time")
     ax.set_ylabel("Count")
     fig.autofmt_xdate()
-    # Stats box
     stats = {
         "count": int(len(dt)),
         "start": dt.min(),
@@ -200,9 +186,6 @@ def time_hist_5min(df: pd.DataFrame, col: str) -> Dict[str, object]:
     }
 
 
-# ---------------------------------------------------------------------------
-# Numeric: TripLength
-# ---------------------------------------------------------------------------
 
 def trip_length_hist(df: pd.DataFrame, bins: int = 30) -> Optional[Dict[str, object]]:
     """
@@ -220,7 +203,6 @@ def trip_length_hist(df: pd.DataFrame, bins: int = 30) -> Optional[Dict[str, obj
     if ser.empty:
         return None
 
-    # finer bins for higher frequency resolution
     bins = max(bins, 60)
 
     fig, ax = plt.subplots(figsize=(7, 4))
@@ -263,9 +245,6 @@ def trip_length_hist(df: pd.DataFrame, bins: int = 30) -> Optional[Dict[str, obj
     }
 
 
-# ---------------------------------------------------------------------------
-# Code-like: GantryID_O / GantryID_D
-# ---------------------------------------------------------------------------
 
 def gantry_code_bar(df: pd.DataFrame, col: str, top_n: int = 30) -> Dict[str, object]:
     """
@@ -287,7 +266,6 @@ def gantry_code_bar(df: pd.DataFrame, col: str, top_n: int = 30) -> Dict[str, ob
 
     top_counts = counts.head(top_n)
 
-    # Make the figure slightly smaller so it fits comfortably in the GUI
     fig, ax = plt.subplots(figsize=(6, 2.5))
     ax.bar(top_counts.index, top_counts.values, edgecolor="black", linewidth=0.6)
     ax.set_title(f"{col} frequency (top {top_n})")
@@ -322,5 +300,197 @@ def gantry_code_bar(df: pd.DataFrame, col: str, top_n: int = 30) -> Dict[str, ob
         "figure": fig,
     }
 
+
+
+def flow_timeseries(st_df: pd.DataFrame, node_index: int) -> Dict[str, object]:
+    """
+    Plot a time series line chart for a given node (by 1-based index).
+
+    Parameters
+    ----------
+    st_df : DataFrame
+        Spatio-temporal matrix with time_bin index and node columns.
+    node_index : int
+        1-based index of the node column (after sorting column names).
+
+    Returns
+    -------
+    dict
+        { "node": node_name, "stats": {count, sum, min, max, mean}, "figure": Figure }
+    """
+    if st_df is None or st_df.empty:
+        raise ValueError("Spatio-temporal dataframe is empty.")
+
+    if not isinstance(st_df.index, pd.DatetimeIndex):
+        try:
+            st_df = st_df.copy()
+            st_df.index = pd.to_datetime(st_df.index, errors="coerce")
+            if st_df.index.isna().all():
+                raise ValueError
+        except Exception:
+            raise ValueError("Index of spatio-temporal dataframe is not datetime-like.")
+
+    cols = sorted([str(c) for c in st_df.columns])
+    if node_index < 1 or node_index > len(cols):
+        raise ValueError(f"node_index must be in [1, {len(cols)}].")
+
+    node_name = cols[node_index - 1]
+    ser = st_df[node_name].astype(float)
+
+    stats = {
+        "count": float(ser.count()),
+        "sum": float(ser.sum()),
+        "min": float(ser.min()),
+        "mean": float(ser.mean()),
+        "max": float(ser.max()),
+    }
+
+    fig, ax = plt.subplots(figsize=(7, 3))
+    ax.plot(st_df.index, ser.values, color="#1f77b4", linewidth=1.2)
+    ax.set_title(f"Flow time series - node {node_name} (index {node_index})")
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Flow count")
+    fig.autofmt_xdate()
+
+    text_lines = [
+        f"n = {stats['count']:.0f}",
+        f"sum = {stats['sum']:.0f}",
+        f"min = {stats['min']:.0f}",
+        f"mean = {stats['mean']:.2f}",
+        f"max = {stats['max']:.0f}",
+    ]
+    ax.text(
+        0.98,
+        0.98,
+        "\n".join(text_lines),
+        transform=ax.transAxes,
+        ha="right",
+        va="top",
+        fontsize=9,
+        bbox=dict(boxstyle="round", facecolor="white", alpha=0.7),
+    )
+
+    fig.tight_layout()
+
+    return {
+        "node": node_name,
+        "stats": stats,
+        "figure": fig,
+    }
+
+
+def st_3d_surface(
+    st_df: pd.DataFrame, max_time_bins: int = 60, max_nodes: int = 40
+) -> Dict[str, object]:
+    """
+    Plot a 3D surface for the spatio-temporal flow matrix.
+
+    Parameters
+    ----------
+    st_df : DataFrame
+        Spatio-temporal matrix with datetime index and node columns.
+    max_time_bins : int
+        Max number of time bins to display (for readability).
+    max_nodes : int
+        Max number of node columns to display (for readability).
+
+    Returns
+    -------
+    dict
+        { "shape": (n_time, n_nodes), "figure": Figure }
+    """
+    if st_df is None or st_df.empty:
+        raise ValueError("Spatio-temporal dataframe is empty.")
+
+    if not isinstance(st_df.index, pd.DatetimeIndex):
+        try:
+            st_df = st_df.copy()
+            st_df.index = pd.to_datetime(st_df.index, errors="coerce")
+            if st_df.index.isna().all():
+                raise ValueError
+        except Exception:
+            raise ValueError("Index of spatio-temporal dataframe is not datetime-like.")
+
+    st = st_df.sort_index()
+    cols = sorted([str(c) for c in st.columns])
+    st = st[cols]
+
+    if st.empty:
+        raise ValueError("Spatio-temporal dataframe subset is empty.")
+
+    z = st.to_numpy(dtype=float)
+    n_time, n_nodes = z.shape
+
+    x_old = np.arange(n_nodes)
+    y_old = np.arange(n_time)
+
+    up_x = min(n_nodes * 3, 200)
+    up_y = min(n_time * 3, 200)
+
+    if n_nodes > 1 and n_time > 1 and up_x > 1 and up_y > 1:
+        x_new = np.linspace(0, n_nodes - 1, up_x)
+        y_new = np.linspace(0, n_time - 1, up_y)
+
+        z_tmp = np.empty((n_time, up_x), dtype=float)
+        for i in range(n_time):
+            z_tmp[i, :] = np.interp(x_new, x_old, z[i, :])
+
+        z_smooth = np.empty((up_y, up_x), dtype=float)
+        for j in range(up_x):
+            z_smooth[:, j] = np.interp(y_new, y_old, z_tmp[:, j])
+
+        kernel = np.array([1.0, 4.0, 6.0, 4.0, 1.0], dtype=float)
+        kernel /= kernel.sum()
+
+        for i in range(up_y):
+            z_smooth[i, :] = np.convolve(z_smooth[i, :], kernel, mode="same")
+
+        for j in range(up_x):
+            z_smooth[:, j] = np.convolve(z_smooth[:, j], kernel, mode="same")
+
+        X, Y = np.meshgrid(x_new, y_new)
+        z_plot = z_smooth
+    else:
+        X, Y = np.meshgrid(x_old, y_old)
+        z_plot = z
+
+    fig = plt.figure(figsize=(7, 4))
+    ax = fig.add_subplot(111, projection="3d")
+    surf = ax.plot_surface(
+        X,
+        Y,
+        z_plot,
+        cmap="viridis",
+        edgecolor="none",
+        antialiased=True,
+        linewidth=0,
+    )
+    ax.set_xlabel("Node index")
+    ax.set_ylabel("Time index")
+    ax.set_zlabel("Flow count")
+    ax.set_title(
+        f"Spatio-temporal flow (full: {n_time} time bins x {n_nodes} nodes)"
+    )
+
+    try:
+        ax.contour(
+            X,
+            Y,
+            z_plot,
+            zdir="z",
+            offset=z_plot.min(),
+            cmap="viridis",
+            linewidths=0.3,
+        )
+    except Exception:
+        pass
+    fig.colorbar(surf, shrink=0.6, aspect=12, pad=0.1)
+
+    fig.tight_layout()
+
+    return {
+        "shape": (n_time, n_nodes),
+        "figure": fig,
+    }
 
 
