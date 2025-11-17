@@ -8,6 +8,7 @@ import logging
 import sys
 from pathlib import Path
 from typing import Optional
+import threading
 
 import pandas as pd
 import tkinter as tk
@@ -28,7 +29,7 @@ from .stats import (
     st_3d_surface,
 )
 from .view_filters import build_view_hint, apply_view_filter, get_field_kind
-from .ST_generator import generate_spatiotemporal
+from .ST_generator import generate_spatiotemporal, generate_spatiotemporal_from_tripinfo
 
 
 logger = logging.getLogger(__name__)
@@ -534,6 +535,12 @@ class TrafficLensApp(tk.Tk):
             bottom_row, text="Generate ST matrix", command=self.on_generate_st
         ).pack(side=tk.LEFT, padx=(0, 8))
 
+        ttk.Button(
+            bottom_row,
+            text="Generate trajectory ST",
+            command=self.on_generate_st_traj,
+        ).pack(side=tk.LEFT, padx=(0, 8))
+
         ttk.Label(bottom_row, text="Node index:").pack(side=tk.LEFT)
         self.st_node_index_var = tk.StringVar(value="")
         node_idx_entry = ttk.Entry(
@@ -868,6 +875,104 @@ class TrafficLensApp(tk.Tk):
         )
         self.st_info_var.set("Spatio-temporal dataset generated.")
         self._update_status()
+
+    def on_generate_st_traj(self) -> None:
+        if self.store is None or self.store.dataframe.empty:
+            messagebox.showinfo("Info", "Please import data first in the 'File' tab.")
+            return
+
+        base_df = self.store.dataframe
+        trip_col = "TripInformation"
+        freq_str = self.st_freq_var.get().strip()
+
+        if trip_col not in base_df.columns:
+            messagebox.showerror(
+                "Error", "Column 'TripInformation' was not found in current data."
+            )
+            return
+        try:
+            freq_min = int(freq_str)
+            if freq_min <= 0:
+                raise ValueError
+        except ValueError:
+            messagebox.showerror("Error", "Bin size must be a positive integer (minutes).")
+            return
+
+        self.st_shape_info = ""
+        self.st_info_var.set(
+            "Generating trajectory-based spatio-temporal data, please wait..."
+        )
+        self._update_status()
+        progress_win = tk.Toplevel(self)
+        progress_win.title("Processing")
+        progress_win.resizable(False, False)
+        ttk.Label(
+            progress_win,
+            text="Generating trajectory-based spatio-temporal data...",
+        ).pack(side=tk.TOP, padx=12, pady=(10, 4))
+        pb = ttk.Progressbar(progress_win, mode="indeterminate")
+        pb.pack(side=tk.TOP, fill=tk.X, padx=12, pady=(0, 10))
+        pb.start(10)
+        progress_win.transient(self)
+        progress_win.grab_set()
+
+        def worker() -> None:
+            try:
+                st_df = generate_spatiotemporal_from_tripinfo(
+                    base_df, trip_col, freq_min
+                )
+            except Exception as exc:
+                def on_error() -> None:
+                    pb.stop()
+                    progress_win.grab_release()
+                    progress_win.destroy()
+                    logger.exception(
+                        "Trajectory spatio-temporal generation failed: %s", exc
+                    )
+                    messagebox.showerror(
+                        "Error", f"Trajectory spatio-temporal generation failed: {exc}"
+                    )
+                    self.st_info_var.set(
+                        "Trajectory spatio-temporal generation failed."
+                    )
+                    self._update_status()
+
+                self.after(0, on_error)
+                return
+
+            def on_success() -> None:
+                pb.stop()
+                progress_win.grab_release()
+                progress_win.destroy()
+                if self.st_prev_df is None:
+                    self.st_prev_df = self.current_df.copy()
+                    self.st_prev_page = self.current_page
+                self.st_df = st_df
+                logger.info(
+                    "Generated trajectory-based spatio-temporal dataset: %d time bins x %d nodes",
+                    st_df.shape[0],
+                    st_df.shape[1],
+                )
+                self.current_df = st_df.reset_index()
+                columns = list(self.current_df.columns)
+                if len(columns) > 11:
+                    columns = columns[:11]
+                    self.current_df = self.current_df[columns]
+                self.table_columns = columns
+                self._configure_table_columns()
+                self.current_page = 1
+                self._refresh_view()
+                self.st_shape_info = (
+                    f"Trajectory ST dataset: {st_df.shape[0]} time bins x {st_df.shape[1]} nodes."
+                )
+                self.st_info_var.set(
+                    "Trajectory-based spatio-temporal dataset generated."
+                )
+                self._update_status()
+
+            self.after(0, on_success)
+
+        threading.Thread(target=worker, daemon=True).start()
 
     def on_plot_flow(self) -> None:
         """Plot flow time series for a given node index from spatio-temporal dataset."""
