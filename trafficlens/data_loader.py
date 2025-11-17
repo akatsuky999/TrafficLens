@@ -19,12 +19,18 @@ def _read_single_csv(path: Path) -> pd.DataFrame:
     """
     Helper for fast CSV loading.
 
-    - Uses dtype=str to避免推断类型的开销（后续按需再转换）。
-    - 如果列数匹配 DEFAULT_COLUMNS，则自动赋列名。
+    - Uses dtype=str to avoid type inference overhead (convert later when needed).
+    - If the column count matches DEFAULT_COLUMNS, assign these names.
+    - Automatically detects and skips a header row if present in the CSV file.
     """
     df = pd.read_csv(path, header=None, dtype=str)
     if len(df.columns) == len(DEFAULT_COLUMNS):
         df.columns = DEFAULT_COLUMNS
+        if not df.empty:
+            first_row = df.iloc[0].astype(str).str.strip()
+            col_labels = [str(col).strip() for col in DEFAULT_COLUMNS]
+            if all(first_row[i] == col_labels[i] for i in range(len(col_labels))):
+                df = df.iloc[1:].reset_index(drop=True)
     return df
 
 
@@ -45,7 +51,7 @@ class TrafficDataStore:
         """
         Load multiple CSV files into a single DataFrame.
 
-        对于文件数较多的情况，使用多线程并发读取以提升 I/O 吞吐。
+        For a large number of files, use multi-threaded reading to increase I/O throughput.
         """
         paths: List[Path] = []
         for f in files:
@@ -91,9 +97,9 @@ class TrafficDataStore:
         """
         Search keyword in the dataframe.
 
-        - If column is None: search across all string columns (全局搜索)
-        - If column is given: only search in that specific column
-        - If strict is True: 使用严格匹配（等于）；否则使用模糊匹配（包含）
+        - If column is None: search across all string columns (global search).
+        - If column is given: only search in that specific column.
+        - If strict is True: use exact match; otherwise use fuzzy (substring) match.
         """
         if not keyword:
             return self.dataframe.copy()
@@ -137,6 +143,6 @@ class TrafficDataStore:
     def export_csv(self, path: Path, df: Optional[pd.DataFrame] = None) -> None:
         target = df if df is not None else self.dataframe
         path.parent.mkdir(parents=True, exist_ok=True)
-        target.to_csv(path, index=False, encoding="utf-8-sig")
+        target.to_csv(path, index=False, header=False, encoding="utf-8-sig")
 
 
