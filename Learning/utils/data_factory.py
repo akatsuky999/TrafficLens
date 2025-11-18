@@ -1,16 +1,3 @@
-"""
-说明：
-- 接受 raw 数据 (T, N) 或 .npy/.npz 文件（包含 (T,N) 数组）
-- 不添加时间编码（explicitly NO time features）
-- 使用单一连续历史窗口: input_steps -> pred_steps
-- 对输入 X 做训练集上的 z-score 标准化（mean/std），target Y 保持原值
-- 不保存中间文件，返回 PyTorch DataLoader
-- 输出:
-    X -> (B, N, 1, T_in)
-    Y -> (B, N, T_out)
-- 返回: train_loader, val_loader, test_loader, stats_dict, shapes_dict
-"""
-
 from typing import Union, Tuple, Optional
 import os
 import numpy as np

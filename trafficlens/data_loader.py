@@ -16,13 +16,6 @@ from .config import DATA_DIR, DEFAULT_COLUMNS
 
 
 def _read_single_csv(path: Path) -> pd.DataFrame:
-    """
-    Helper for fast CSV loading.
-
-    - Uses dtype=str to avoid type inference overhead (convert later when needed).
-    - If the column count matches DEFAULT_COLUMNS, assign these names.
-    - Automatically detects and skips a header row if present in the CSV file.
-    """
     df = pd.read_csv(path, header=None, dtype=str)
     if len(df.columns) == len(DEFAULT_COLUMNS):
         df.columns = DEFAULT_COLUMNS
@@ -48,11 +41,6 @@ class TrafficDataStore:
 
     @classmethod
     def from_files(cls, files: List[Path]) -> "TrafficDataStore":
-        """
-        Load multiple CSV files into a single DataFrame.
-
-        For a large number of files, use multi-threaded reading to increase I/O throughput.
-        """
         paths: List[Path] = []
         for f in files:
             p = Path(f)
@@ -94,13 +82,7 @@ class TrafficDataStore:
     def search(
         self, keyword: str, column: Optional[str] = None, strict: bool = False
     ) -> pd.DataFrame:
-        """
-        Search keyword in the dataframe.
 
-        - If column is None: search across all string columns (global search).
-        - If column is given: only search in that specific column.
-        - If strict is True: use exact match; otherwise use fuzzy (substring) match.
-        """
         if not keyword:
             return self.dataframe.copy()
         keyword_lower = str(keyword).lower()

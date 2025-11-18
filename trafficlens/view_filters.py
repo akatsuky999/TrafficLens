@@ -1,10 +1,3 @@
-"""
-Backend logic for view-range filtering in TrafficLens.
-
-The GUI should only collect user inputs (field, value/from/to) and call
-these functions to get hints and filtered DataFrames.
-"""
-
 from __future__ import annotations
 
 from typing import Dict, List, Optional, Tuple
@@ -29,11 +22,6 @@ def get_field_kind(col_name: str) -> Optional[str]:
 def build_view_hint(
     df: pd.DataFrame, col_name: str
 ) -> Tuple[str, str, Optional[List[str]]]:
-    """
-    Build a hint string and optional category list for the given column.
-
-    Returns (kind, hint_text, categories_or_None)
-    """
     kind = get_field_kind(col_name)
     if df is None or df.empty or col_name not in df.columns or kind is None:
         return kind or "", f"{col_name}: no data available.", None
@@ -78,13 +66,6 @@ def apply_view_filter(
     from_str: str,
     to_str: str,
 ) -> pd.DataFrame:
-    """
-    Apply a view filter to the provided dataframe and return a new dataframe.
-
-    - kind: 'category' / 'time' / 'numeric'
-    - value: used for category (exact match)
-    - from_str, to_str: used for time/numeric (range endpoints)
-    """
     if df is None or df.empty or col_name not in df.columns:
         return df.iloc[0:0].copy()
 

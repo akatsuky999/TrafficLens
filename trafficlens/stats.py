@@ -1,11 +1,3 @@
-"""
-Data statistics utilities for TrafficLens.
-
-This module contains backend logic for computing statistics and creating
-publication-quality figures. The GUI is responsible only for calling
-these functions and embedding the returned matplotlib Figure.
-"""
-
 from __future__ import annotations
 
 from typing import Dict, Optional
@@ -55,14 +47,6 @@ except Exception:
 
 
 def overview_stats(df: pd.DataFrame) -> Dict[str, int]:
-    """
-    Return high-level statistics for the given dataframe.
-
-    Keys:
-    - total_rows
-    - total_cols
-    - distinct_vehicle_types
-    """
     if df is None or df.empty:
         return {"total_rows": 0, "total_cols": 0, "distinct_vehicle_types": 0}
 
@@ -80,13 +64,6 @@ def overview_stats(df: pd.DataFrame) -> Dict[str, int]:
 
 
 def vehicle_type_pie(df: pd.DataFrame) -> Dict[str, object]:
-    """
-    Build a pie chart for VehicleType and return statistics + Figure.
-
-    Returns dict with:
-    - stats: { total, n_unique, top_counts }
-    - figure: matplotlib Figure
-    """
     if df is None or df.empty or "VehicleType" not in df.columns:
         raise ValueError("VehicleType column not found or dataframe is empty.")
 
@@ -134,13 +111,6 @@ def vehicle_type_pie(df: pd.DataFrame) -> Dict[str, object]:
 
 
 def time_hist_5min(df: pd.DataFrame, col: str) -> Dict[str, object]:
-    """
-    Group a time-like column in 5-minute intervals and plot a bar chart.
-
-    Returns dict with:
-    - stats: { count, start, end }
-    - figure: matplotlib Figure
-    """
     if df is None or df.empty or col not in df.columns:
         raise ValueError(f"Column {col} not found or dataframe is empty.")
 
@@ -188,14 +158,6 @@ def time_hist_5min(df: pd.DataFrame, col: str) -> Dict[str, object]:
 
 
 def trip_length_hist(df: pd.DataFrame, bins: int = 30) -> Optional[Dict[str, object]]:
-    """
-    Plot a histogram for TripLength and return statistics + Figure.
-
-    Returns dict with:
-    - stats: { count, min, mean, std, max }
-    - figure: matplotlib Figure
-    or None if no valid numeric values are present.
-    """
     if df is None or df.empty or "TripLength" not in df.columns:
         return None
 
@@ -247,16 +209,6 @@ def trip_length_hist(df: pd.DataFrame, bins: int = 30) -> Optional[Dict[str, obj
 
 
 def gantry_code_bar(df: pd.DataFrame, col: str, top_n: int = 30) -> Dict[str, object]:
-    """
-    Plot a bar chart for gantry codes (code-like features).
-
-    x-axis: unique labels; y-axis: frequency.
-    Only top_n most frequent labels are shown for readability.
-
-    Returns dict with:
-    - stats: { n_unique, top_counts }
-    - figure: matplotlib Figure
-    """
     if df is None or df.empty or col not in df.columns:
         raise ValueError(f"Column {col} not found or dataframe is empty.")
 
@@ -303,21 +255,6 @@ def gantry_code_bar(df: pd.DataFrame, col: str, top_n: int = 30) -> Dict[str, ob
 
 
 def flow_timeseries(st_df: pd.DataFrame, node_index: int) -> Dict[str, object]:
-    """
-    Plot a time series line chart for a given node (by 1-based index).
-
-    Parameters
-    ----------
-    st_df : DataFrame
-        Spatio-temporal matrix with time_bin index and node columns.
-    node_index : int
-        1-based index of the node column (after sorting column names).
-
-    Returns
-    -------
-    dict
-        { "node": node_name, "stats": {count, sum, min, max, mean}, "figure": Figure }
-    """
     if st_df is None or st_df.empty:
         raise ValueError("Spatio-temporal dataframe is empty.")
 
@@ -382,23 +319,6 @@ def flow_timeseries(st_df: pd.DataFrame, node_index: int) -> Dict[str, object]:
 def st_3d_surface(
     st_df: pd.DataFrame, max_time_bins: int = 60, max_nodes: int = 40
 ) -> Dict[str, object]:
-    """
-    Plot a 3D surface for the spatio-temporal flow matrix.
-
-    Parameters
-    ----------
-    st_df : DataFrame
-        Spatio-temporal matrix with datetime index and node columns.
-    max_time_bins : int
-        Max number of time bins to display (for readability).
-    max_nodes : int
-        Max number of node columns to display (for readability).
-
-    Returns
-    -------
-    dict
-        { "shape": (n_time, n_nodes), "figure": Figure }
-    """
     if st_df is None or st_df.empty:
         raise ValueError("Spatio-temporal dataframe is empty.")
 

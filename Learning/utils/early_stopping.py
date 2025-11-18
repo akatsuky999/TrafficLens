@@ -1,10 +1,3 @@
-"""
-Early stopping utility
-======================
-
-典型的早停实现，用于在验证集指标不再提升时提前终止训练并保存最佳模型。
-"""
-
 import os
 from typing import Optional
 
@@ -13,14 +6,7 @@ import torch
 
 
 class EarlyStopping:
-    """
-    Args:
-        patience: 容忍验证指标不提升的 epoch 数
-        verbose: 是否打印每次改进的信息
-        delta: 最小改进幅度，小于该幅度视为没有改进
-        path: 最佳模型保存路径；若为 None，则不自动保存
-        mode: "min" 表示指标越小越好 (如 loss, MAE)，"max" 表示越大越好 (如 accuracy)
-    """
+
 
     def __init__(
         self,
@@ -44,13 +30,6 @@ class EarlyStopping:
         self.best_value = np.inf if mode == "min" else -np.inf
 
     def __call__(self, value: float, model: torch.nn.Module) -> None:
-        """
-        更新早停状态。
-
-        Args:
-            value: 当前 epoch 的验证指标（例如 val_loss）
-            model: 当前模型（用于在指标提升时保存）
-        """
         score = -value if self.mode == "min" else value
 
         if self.best_score is None:
@@ -65,14 +44,12 @@ class EarlyStopping:
             if self.counter >= self.patience:
                 self.early_stop = True
         else:
-            # 指标有显著提升
             self.best_score = score
             self.best_value = value
             self._save_checkpoint(value, model)
             self.counter = 0
 
     def _save_checkpoint(self, value: float, model: torch.nn.Module) -> None:
-        """保存当前最佳模型."""
         if self.path is None:
             return
         os.makedirs(os.path.dirname(self.path), exist_ok=True)

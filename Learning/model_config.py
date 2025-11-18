@@ -1,15 +1,3 @@
-"""
-统一配置与模型构建函数
-=================================
-
-本文件提供：
-- 一个可复现实验的默认配置 `get_default_config`；
-- 根据配置与数据形状动态构建模型的工厂函数 `build_model`。
-
-训练脚本 `train.py` 与预测脚本 `predict.py` 只需要依赖这里的 API，
-便于以后统一修改实验设置。
-"""
-
 from typing import Dict, Any
 import torch
 
@@ -19,38 +7,29 @@ from .model.STGformer import STGformer, STGWrapper
 
 
 def get_default_config() -> Dict[str, Any]:
-    """返回一个用于时空预测任务的默认配置字典."""
-
-    # 默认优先使用 cuda:0
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
     cfg: Dict[str, Any] = {
         "seed": 42,
         "device": device,
-        # -------------------- 数据相关 -------------------- #
         "data": {
-            # 你的时空数据路径，shape (T, N)
             "data_path": "data/TW.npy",
-            "input_steps": 5,   # 历史序列长度 T_in
-            "pred_steps": 5,    # 预测序列长度 T_out
+            "input_steps": 5,
+            "pred_steps": 5,
             "batch_size": 32,
-            # (train_ratio, val_ratio) 相对于所有样本数的比例
             "split_ratios": (0.8, 0.9),
             "shuffle": True,
         },
-        # -------------------- 模型相关 -------------------- #
-        "model": {
-            # 可选: "gwnet" / "lstm" / "stgformer"
-            "name": "gwnet",
 
-            # 通用
+        "model": {
+            "name": "gwnet",
             "in_dim": 1,
 
-            # LSTM 超参数
+            # LSTM
             "lstm_hidden_dim": 64,
             "lstm_num_layers": 5,
 
-            # GWNet 超参数
+            # GWNet
             "gwnet_dropout": 0.3,
             "gwnet_gcn_bool": True,
             "gwnet_addaptadj": True,
@@ -62,7 +41,7 @@ def get_default_config() -> Dict[str, Any]:
             "gwnet_blocks": 5,
             "gwnet_layers": 2,
 
-            # STGformer 超参数
+            # STGformer
             "stg_steps_per_day": 288,
             "stg_input_dim": 1,
             "stg_output_dim": 1,
@@ -79,19 +58,19 @@ def get_default_config() -> Dict[str, Any]:
             "stg_dropout_a": 0.3,
             "stg_kernel_size": 1,
         },
-        # -------------------- 训练相关 -------------------- #
+
         "train": {
             "epochs": 10000,
             "learning_rate": 1e-3,
             "weight_decay": 1e-5,
-            "grad_clip": 5.0,       # 0 或 None 表示不裁剪
-            "patience": 10,         # 早停
-            "loss": "mae",          # 可选: "mae" / "mse"
+            "grad_clip": 5.0,
+            "patience": 10,
+            "loss": "mae",
         },
-        # -------------------- 日志与保存 -------------------- #
+
         "log": {
-            "print_every": 50,         # 每多少个 iteration 打印一次训练日志
-            "save_dir": "checkpoint",  # 模型保存目录
+            "print_every": 50,
+            "save_dir": "checkpoint",
             "experiment_name": "spatiotemporal_forecast",
         },
     }
@@ -102,14 +81,7 @@ def get_default_config() -> Dict[str, Any]:
 def build_model(config: Dict[str, Any],
                 num_nodes: int,
                 device: torch.device) -> torch.nn.Module:
-    """
-    根据配置与节点数构建模型。
 
-    Args:
-        config: `get_default_config()` 返回的配置或其修改版本
-        num_nodes: 数据中的节点数量 N
-        device: torch.device
-    """
     model_cfg = config["model"]
     data_cfg = config["data"]
     name = model_cfg["name"].lower()
@@ -131,7 +103,7 @@ def build_model(config: Dict[str, Any],
             device=device,
             num_nodes=num_nodes,
             dropout=model_cfg["gwnet_dropout"],
-            supports=None,               # 默认使用纯自适应邻接
+            supports=None,
             gcn_bool=model_cfg["gwnet_gcn_bool"],
             addaptadj=model_cfg["gwnet_addaptadj"],
             aptinit=None,

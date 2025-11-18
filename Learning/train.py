@@ -15,7 +15,6 @@ from .model_config import get_default_config, build_model
 
 
 def set_seed(seed: int) -> None:
-    """保证实验可复现."""
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -49,13 +48,11 @@ def train_one_epoch(
     n_batches = 0
 
     for x, y in data_loader:
-        # dataloader 输出: x (B, N, 1, T_in), y (B, N, T_out)
-        # 这里不再额外 permute，模型内部会根据自身需要处理维度
         x = x.to(device)
         y = y.to(device)  # (B, N, T_out)
 
         optimizer.zero_grad()
-        pred = model(x)  # 期望输出 (B, N, T_out)
+        pred = model(x)  # (B, N, T_out)
 
         loss = criterion(pred, y)
         loss.backward()
@@ -153,7 +150,6 @@ def run_training(
         weight_decay=train_cfg["weight_decay"],
     )
 
-    # 准备日志与保存目录（使用 .pth 扩展名），并按模型划分子文件夹
     save_root = log_cfg["save_dir"]
     model_name = cfg["model"]["name"]
     model_save_dir = os.path.join(save_root, model_name)
@@ -219,7 +215,6 @@ def run_training(
                 log("Early stopping triggered.")
                 break
 
-    # 保存最后一个 epoch 的模型
     torch.save(model.state_dict(), last_model_path)
 
     if os.path.exists(best_model_path):
