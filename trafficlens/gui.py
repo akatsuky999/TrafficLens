@@ -4,7 +4,6 @@ Tkinter GUI for TrafficLens.
 
 from __future__ import annotations
 
-import logging
 import sys
 from pathlib import Path
 from typing import Optional
@@ -15,6 +14,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 import numpy as np
 
 from .config import DEFAULT_COLUMNS
@@ -30,15 +30,25 @@ from .stats import (
 )
 from .view_filters import build_view_hint, apply_view_filter, get_field_kind
 from .ST_generator import generate_spatiotemporal, generate_spatiotemporal_from_tripinfo
+from Learning.model_config import get_default_config
+from Learning.train import run_training
+from Learning.predict import run_inference
+
+class _DummyLogger:
+    def info(self, *args, **kwargs) -> None:
+        pass
+
+    def exception(self, *args, **kwargs) -> None:
+        pass
 
 
-logger = logging.getLogger(__name__)
+logger = _DummyLogger()
 
 
 class TrafficLensApp(tk.Tk):
     def __init__(self, store: Optional[TrafficDataStore] = None) -> None:
         super().__init__()
-        self.title("TrafficLens - Traffic Data Explorer")
+        self.title("TrafficLens - Traffic Data Explorer for Taiwan Highway")
         self.geometry("1100x600")
         self.minsize(900, 500)
 
@@ -72,6 +82,11 @@ class TrafficLensApp(tk.Tk):
         self.st_shape_info: str = ""
 
         self.plot_canvas: FigureCanvasTkAgg | None = None
+        self.learning_log_widget: tk.Text | None = None
+        self.learning_model_overrides: dict[str, dict[str, object]] = {}
+        self.learning_view_mode: str = "log"
+        self.learning_stop_training: bool = False
+        self.learning_checkpoint_path: str | None = None
 
         self.last_search_keyword: Optional[str] = None
         self.last_search_column: Optional[str] = None
@@ -149,6 +164,14 @@ class TrafficLensApp(tk.Tk):
             width=16,
         )
         self.st_tab_btn.pack(side=tk.LEFT)
+
+        self.learning_tab_btn = ttk.Button(
+            tab_frame,
+            text="Learning",
+            command=lambda: self._on_tab_click("Learning"),
+            width=10,
+        )
+        self.learning_tab_btn.pack(side=tk.LEFT, padx=(4, 0))
 
         self.global_back_btn = ttk.Button(
             tab_frame,
@@ -532,12 +555,12 @@ class TrafficLensApp(tk.Tk):
         freq_entry.pack(side=tk.LEFT, padx=(2, 8))
 
         ttk.Button(
-            bottom_row, text="Generate ST matrix", command=self.on_generate_st
+            bottom_row, text="Generate O/D ST matrix", command=self.on_generate_st
         ).pack(side=tk.LEFT, padx=(0, 8))
 
         ttk.Button(
             bottom_row,
-            text="Generate trajectory ST",
+            text="Generate trajectory ST matrix",
             command=self.on_generate_st_traj,
         ).pack(side=tk.LEFT, padx=(0, 8))
 
@@ -561,6 +584,128 @@ class TrafficLensApp(tk.Tk):
             side=tk.LEFT, padx=(8, 0)
         )
 
+    def _build_learning_toolbar(self) -> None:
+        self._clear_toolbar()
+
+        top_row = ttk.Frame(self.toolbar_frame)
+        top_row.pack(side=tk.TOP, fill=tk.X)
+        middle_row = ttk.Frame(self.toolbar_frame)
+        middle_row.pack(side=tk.TOP, fill=tk.X, pady=(2, 0))
+        bottom_row = ttk.Frame(self.toolbar_frame)
+        bottom_row.pack(side=tk.TOP, fill=tk.X, pady=(2, 0))
+
+        ttk.Label(top_row, text="Model:").pack(side=tk.LEFT)
+        self.learning_model_var = tk.StringVar(value="gwnet")
+        model_combo = ttk.Combobox(
+            top_row,
+            textvariable=self.learning_model_var,
+            values=["gwnet", "lstm", "stgformer"],
+            state="readonly",
+            width=10,
+        )
+        model_combo.pack(side=tk.LEFT, padx=(4, 8))
+
+        ttk.Label(top_row, text="Device:").pack(side=tk.LEFT)
+        self.learning_device_var = tk.StringVar(value="Auto")
+        device_combo = ttk.Combobox(
+            top_row,
+            textvariable=self.learning_device_var,
+            values=["Auto", "CPU only"],
+            state="readonly",
+            width=10,
+        )
+        device_combo.pack(side=tk.LEFT, padx=(2, 8))
+
+        ttk.Label(top_row, text="Data path:").pack(side=tk.LEFT)
+        self.learning_data_path_var = tk.StringVar(value="Learning/data/TW.npy")
+        data_entry = ttk.Entry(
+            top_row, textvariable=self.learning_data_path_var, width=32
+        )
+        data_entry.pack(side=tk.LEFT, padx=(4, 4))
+        ttk.Button(
+            top_row, text="Browse", command=self.on_learning_browse_data
+        ).pack(side=tk.LEFT, padx=(0, 8))
+
+        ttk.Label(top_row, text="Input steps:").pack(side=tk.LEFT)
+        self.learning_input_steps_var = tk.StringVar(value="5")
+        ttk.Entry(
+            top_row, textvariable=self.learning_input_steps_var, width=4
+        ).pack(side=tk.LEFT, padx=(2, 4))
+
+        ttk.Label(top_row, text="Pred steps:").pack(side=tk.LEFT)
+        self.learning_pred_steps_var = tk.StringVar(value="5")
+        ttk.Entry(
+            top_row, textvariable=self.learning_pred_steps_var, width=4
+        ).pack(side=tk.LEFT, padx=(2, 4))
+
+        ttk.Label(middle_row, text="Mode:").pack(side=tk.LEFT)
+        self.learning_mode_var = tk.StringVar(value="Fixed epochs")
+        mode_combo = ttk.Combobox(
+            middle_row,
+            textvariable=self.learning_mode_var,
+            values=["Fixed epochs", "Early-stopping only"],
+            state="readonly",
+            width=18,
+        )
+        mode_combo.pack(side=tk.LEFT, padx=(2, 8))
+
+        ttk.Label(middle_row, text="Epochs:").pack(side=tk.LEFT)
+        self.learning_epochs_var = tk.StringVar(value="100")
+        ttk.Entry(
+            middle_row, textvariable=self.learning_epochs_var, width=6
+        ).pack(side=tk.LEFT, padx=(2, 8))
+
+        ttk.Label(middle_row, text="Patience:").pack(side=tk.LEFT)
+        self.learning_patience_var = tk.StringVar(value="10")
+        ttk.Entry(
+            middle_row, textvariable=self.learning_patience_var, width=6
+        ).pack(side=tk.LEFT, padx=(2, 8))
+
+        ttk.Label(middle_row, text="Batch size:").pack(side=tk.LEFT)
+        self.learning_batch_size_var = tk.StringVar(value="32")
+        ttk.Entry(
+            middle_row, textvariable=self.learning_batch_size_var, width=6
+        ).pack(side=tk.LEFT, padx=(2, 8))
+
+        ttk.Label(middle_row, text="Learning rate:").pack(side=tk.LEFT)
+        self.learning_lr_var = tk.StringVar(value="0.001")
+        ttk.Entry(
+            middle_row, textvariable=self.learning_lr_var, width=8
+        ).pack(side=tk.LEFT, padx=(2, 8))
+
+        ttk.Label(bottom_row, text="Node index:").pack(side=tk.LEFT)
+        self.learning_node_index_var = tk.StringVar(value="22")
+        ttk.Entry(
+            bottom_row, textvariable=self.learning_node_index_var, width=6
+        ).pack(side=tk.LEFT, padx=(2, 4))
+
+        ttk.Button(
+            bottom_row, text="Load .pth", command=self.on_learning_load_checkpoint
+        ).pack(side=tk.LEFT, padx=(0, 8))
+
+        ttk.Button(
+            bottom_row, text="Predict", command=self.on_learning_predict
+        ).pack(side=tk.LEFT, padx=(0, 8))
+
+        ttk.Button(
+            bottom_row, text="Save outputs", command=self.on_learning_save_outputs
+        ).pack(side=tk.LEFT, padx=(0, 8))
+
+        ttk.Button(
+            bottom_row, text="Train", command=self.on_learning_train
+        ).pack(side=tk.LEFT, padx=(8, 4))
+
+        ttk.Button(
+            bottom_row, text="Stop", command=self.on_learning_stop
+        ).pack(side=tk.LEFT, padx=(0, 4))
+
+        ttk.Button(
+            bottom_row, text="Hyper-parameters", command=self.on_learning_hyperparams
+        ).pack(side=tk.LEFT, padx=(0, 4))
+
+        if self.learning_view_mode == "log":
+            self._ensure_learning_log_view()
+
     def _rebuild_toolbar(self) -> None:
         mode = self.toolbar_mode.get()
         if mode == "File":
@@ -569,8 +714,10 @@ class TrafficLensApp(tk.Tk):
             self._build_action_toolbar()
         elif mode == "View":
             self._build_view_toolbar()
-        else:
+        elif mode == "Spatio-temporal":
             self._build_st_toolbar()
+        else:
+            self._build_learning_toolbar()
 
         self._update_tab_styles()
 
@@ -589,21 +736,412 @@ class TrafficLensApp(tk.Tk):
             self.action_tab_btn.configure(style="Tab.TButton")
             self.view_tab_btn.configure(style="Tab.TButton")
             self.st_tab_btn.configure(style="Tab.TButton")
+            self.learning_tab_btn.configure(style="Tab.TButton")
         elif current == "Actions":
             self.file_tab_btn.configure(style="Tab.TButton")
             self.action_tab_btn.configure(style="TabActive.TButton")
             self.view_tab_btn.configure(style="Tab.TButton")
             self.st_tab_btn.configure(style="Tab.TButton")
+            self.learning_tab_btn.configure(style="Tab.TButton")
         elif current == "View":
             self.file_tab_btn.configure(style="Tab.TButton")
             self.action_tab_btn.configure(style="Tab.TButton")
             self.view_tab_btn.configure(style="TabActive.TButton")
             self.st_tab_btn.configure(style="Tab.TButton")
-        else:
+            self.learning_tab_btn.configure(style="Tab.TButton")
+        elif current == "Spatio-temporal":
             self.file_tab_btn.configure(style="Tab.TButton")
             self.action_tab_btn.configure(style="Tab.TButton")
             self.view_tab_btn.configure(style="Tab.TButton")
             self.st_tab_btn.configure(style="TabActive.TButton")
+            self.learning_tab_btn.configure(style="Tab.TButton")
+        else:
+            self.file_tab_btn.configure(style="Tab.TButton")
+            self.action_tab_btn.configure(style="Tab.TButton")
+            self.view_tab_btn.configure(style="Tab.TButton")
+            self.st_tab_btn.configure(style="Tab.TButton")
+            self.learning_tab_btn.configure(style="TabActive.TButton")
+
+    def _build_learning_config(self) -> dict:
+        cfg = get_default_config()
+        model_name = self.learning_model_var.get().strip().lower()
+        if model_name:
+            cfg["model"]["name"] = model_name
+
+        data_path = self.learning_data_path_var.get().strip()
+        if data_path:
+            cfg["data"]["data_path"] = data_path
+
+        device_mode = self.learning_device_var.get().strip()
+        if device_mode == "CPU only":
+            cfg["device"] = "cpu"
+
+        try:
+            input_steps = int(self.learning_input_steps_var.get().strip())
+            if input_steps > 0:
+                cfg["data"]["input_steps"] = input_steps
+        except ValueError:
+            pass
+
+        try:
+            pred_steps = int(self.learning_pred_steps_var.get().strip())
+            if pred_steps > 0:
+                cfg["data"]["pred_steps"] = pred_steps
+        except ValueError:
+            pass
+
+        try:
+            batch_size = int(self.learning_batch_size_var.get().strip())
+            if batch_size > 0:
+                cfg["data"]["batch_size"] = batch_size
+        except ValueError:
+            pass
+
+        mode = self.learning_mode_var.get().strip()
+
+        try:
+            patience_val = int(self.learning_patience_var.get().strip())
+        except ValueError:
+            patience_val = cfg["train"].get("patience", 10)
+
+        if mode == "Fixed epochs":
+            try:
+                epochs = int(self.learning_epochs_var.get().strip())
+                if epochs > 0:
+                    cfg["train"]["epochs"] = epochs
+            except ValueError:
+                pass
+            cfg["train"]["patience"] = 0
+        else:
+            cfg["train"]["patience"] = max(patience_val, 1)
+            cfg["train"]["epochs"] = 10**9
+
+        try:
+            lr = float(self.learning_lr_var.get().strip())
+            if lr > 0:
+                cfg["train"]["learning_rate"] = lr
+        except ValueError:
+            pass
+
+        overrides = self.learning_model_overrides.get(model_name)
+        if overrides:
+            cfg["model"].update(overrides)
+
+        return cfg
+
+    def on_learning_hyperparams(self) -> None:
+        model_name = self.learning_model_var.get().strip().lower()
+        if not model_name:
+            messagebox.showerror("Error", "Please select a model first.")
+            return
+
+        base_cfg = get_default_config()
+        base_model_cfg = base_cfg["model"]
+        current_overrides = self.learning_model_overrides.get(model_name, {})
+
+        if model_name == "gwnet":
+            fields = [
+                ("gwnet_dropout", float),
+                ("gwnet_residual_channels", int),
+                ("gwnet_dilation_channels", int),
+                ("gwnet_skip_channels", int),
+                ("gwnet_end_channels", int),
+                ("gwnet_kernel_size", int),
+                ("gwnet_blocks", int),
+                ("gwnet_layers", int),
+            ]
+        elif model_name == "stgformer":
+            fields = [
+                ("stg_steps_per_day", int),
+                ("stg_input_dim", int),
+                ("stg_output_dim", int),
+                ("stg_input_embedding_dim", int),
+                ("stg_tod_embedding_dim", int),
+                ("stg_dow_embedding_dim", int),
+                ("stg_spatial_embedding_dim", int),
+                ("stg_adaptive_embedding_dim", int),
+                ("stg_num_heads", int),
+                ("stg_num_layers", int),
+                ("stg_dropout", float),
+                ("stg_mlp_ratio", float),
+                ("stg_use_mixed_proj", int),
+                ("stg_dropout_a", float),
+                ("stg_kernel_size", int),
+            ]
+        else:
+            fields = [
+                ("lstm_hidden_dim", int),
+                ("lstm_num_layers", int),
+            ]
+
+        win = tk.Toplevel(self)
+        win.title(f"{model_name.upper()} hyper-parameters")
+        win.resizable(False, False)
+
+        entries: dict[str, tk.Entry] = {}
+        for row, (key, _typ) in enumerate(fields):
+            ttk.Label(win, text=key).grid(row=row, column=0, sticky="w", padx=8, pady=4)
+            if key in current_overrides:
+                val = current_overrides[key]
+            else:
+                val = base_model_cfg.get(key, "")
+            var = tk.StringVar(value=str(val))
+            entry = ttk.Entry(win, textvariable=var, width=16)
+            entry.grid(row=row, column=1, sticky="w", padx=8, pady=4)
+            entries[key] = entry
+
+        def on_ok() -> None:
+            new_params: dict[str, object] = {}
+            for key, typ in fields:
+                raw = entries[key].get().strip()
+                if not raw:
+                    continue
+                try:
+                    value: object
+                    if typ is int:
+                        value = int(raw)
+                    else:
+                        value = float(raw)
+                    new_params[key] = value
+                except ValueError:
+                    messagebox.showerror("Error", f"Invalid value for {key}: {raw}")
+                    return
+            self.learning_model_overrides[model_name] = new_params
+            messagebox.showinfo(
+                "Hyper-parameters",
+                "Hyper-parameters updated for this session.\nThey will reset to defaults when you restart the program.",
+            )
+            win.destroy()
+
+        btn_row = len(fields)
+        ttk.Button(win, text="OK", command=on_ok).grid(
+            row=btn_row, column=0, padx=8, pady=8, sticky="e"
+        )
+        ttk.Button(win, text="Cancel", command=win.destroy).grid(
+            row=btn_row, column=1, padx=8, pady=8, sticky="w"
+        )
+
+    def _ensure_learning_log_view(self) -> None:
+        if self.table_frame.winfo_ismapped():
+            self.table_frame.pack_forget()
+        self.plot_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=(0, 4))
+        for child in self.plot_frame.winfo_children():
+            child.destroy()
+        self.plot_frame.rowconfigure(0, weight=1)
+        self.plot_frame.columnconfigure(0, weight=1)
+        text = tk.Text(self.plot_frame, wrap="word")
+        text.grid(row=0, column=0, sticky="nsew")
+        scrollbar = ttk.Scrollbar(self.plot_frame, orient="vertical", command=text.yview)
+        scrollbar.grid(row=0, column=1, sticky="ns")
+        text.configure(yscrollcommand=scrollbar.set)
+        self.learning_log_widget = text
+
+    def _append_learning_log(self, line: str) -> None:
+        if self.learning_log_widget is None:
+            return
+        self.learning_log_widget.insert(tk.END, line + "\n")
+        self.learning_log_widget.see(tk.END)
+
+    def on_learning_browse_data(self) -> None:
+        path = filedialog.askopenfilename(
+            title="Select training data (.npy/.npz)",
+            filetypes=[("NumPy file", "*.npy *.npz"), ("All Files", "*.*")],
+        )
+        if not path:
+            return
+        self.learning_data_path_var.set(path)
+
+    def on_learning_train(self) -> None:
+        cfg = self._build_learning_config()
+        self.learning_stop_training = False
+        self.learning_view_mode = "log"
+        self._ensure_learning_log_view()
+        if self.learning_log_widget is not None:
+            self.learning_log_widget.delete("1.0", tk.END)
+
+        def gui_log(msg: str) -> None:
+            self.after(0, lambda: self._append_learning_log(msg))
+
+        def worker() -> None:
+            try:
+                paths = run_training(
+                    cfg,
+                    log_callback=gui_log,
+                    stop_callback=lambda: self.learning_stop_training,
+                )
+
+                def show_ok() -> None:
+                    msg_lines = ["Training finished."]
+                    if isinstance(paths, dict):
+                        best = paths.get("best")
+                        last = paths.get("last")
+                        if best:
+                            msg_lines.append(f"Best model file: {best}")
+                        if last:
+                            msg_lines.append(f"Last model file: {last}")
+                    messagebox.showinfo("Training", "\n".join(msg_lines))
+
+                self.after(0, show_ok)
+            except Exception as exc:
+
+                logger.exception("Learning training failed: %s", exc)
+
+                def show_error() -> None:
+                    messagebox.showerror("Error", f"Training failed: {exc}")
+
+                self.after(0, show_error)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def on_learning_load_checkpoint(self) -> None:
+        path = filedialog.askopenfilename(
+            title="Select checkpoint (.pth)",
+            filetypes=[("PyTorch checkpoint", "*.pth"), ("All Files", "*.*")],
+        )
+        if not path:
+            return
+        self.learning_checkpoint_path = path
+        messagebox.showinfo("Checkpoint", f"Loaded checkpoint:\n{path}")
+
+    def on_learning_stop(self) -> None:
+        self.learning_stop_training = True
+
+    def on_learning_predict(self) -> None:
+        cfg = self._build_learning_config()
+        checkpoint = self.learning_checkpoint_path
+        if not checkpoint:
+            messagebox.showinfo(
+                "Info", "Please load a checkpoint (.pth) first using 'Load .pth'."
+            )
+            return
+
+        output_path = "prediction.npy"
+
+        idx_str = self.learning_node_index_var.get().strip()
+        node_idx = None
+        if idx_str:
+            try:
+                node_idx = int(idx_str)
+            except ValueError:
+                messagebox.showerror("Error", "Node index must be an integer (0-based).")
+                return
+
+        def worker() -> None:
+            try:
+                result = run_inference(
+                    cfg=cfg,
+                    checkpoint_path=checkpoint,
+                    output_path=output_path,
+                    use_test_split=False,
+                    node_idx=node_idx,
+                    save_plot=False,
+                    return_figure=False,
+                    return_series=True,
+                    save_outputs=False,
+                )
+
+                def show_fig() -> None:
+                    if result is not None:
+                        node_idx_local, true_series, pred_series = result
+                        fig = Figure(figsize=(10, 4))
+                        ax = fig.add_subplot(111)
+                        ax.plot(true_series, label="True", linewidth=1.2)
+                        ax.plot(pred_series, label="Pred", linewidth=1.2)
+                        ax.set_title(f"Node {node_idx_local} – Full Series")
+                        ax.set_xlabel("Time index")
+                        ax.set_ylabel("Value")
+                        ax.legend()
+                        fig.tight_layout()
+                        self.learning_view_mode = "plot"
+                        self._show_figure(
+                            fig,
+                            "Prediction result (True vs Pred) for selected node.",
+                        )
+
+                self.after(0, show_fig)
+            except RuntimeError as exc:
+                logger.exception("Learning prediction failed (model mismatch): %s", exc)
+
+                def show_error_model() -> None:
+                    messagebox.showerror(
+                        "Model checkpoint mismatch",
+                        "Failed to load checkpoint into current model.\n"
+                        "Please check that:\n"
+                        "- The checkpoint type (GWNet / LSTM) matches current model,\n"
+                        "- Hyper-parameters are consistent with the training settings.",
+                    )
+
+                self.after(0, show_error_model)
+            except Exception as exc:
+                logger.exception("Learning prediction failed: %s", exc)
+
+                def show_error() -> None:
+                    messagebox.showerror("Error", f"Prediction failed: {exc}")
+
+                self.after(0, show_error)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def on_learning_save_outputs(self) -> None:
+        cfg = self._build_learning_config()
+        checkpoint = self.learning_checkpoint_path
+        if not checkpoint:
+            messagebox.showinfo(
+                "Info", "Please load a checkpoint (.pth) first using 'Load .pth'."
+            )
+            return
+
+        path = filedialog.asksaveasfilename(
+            title="Save prediction outputs (.npy)",
+            defaultextension=".npy",
+            filetypes=[("NumPy file", "*.npy"), ("All Files", "*.*")],
+        )
+        if not path:
+            return
+
+        def worker() -> None:
+            try:
+                run_inference(
+                    cfg=cfg,
+                    checkpoint_path=checkpoint,
+                    output_path=path,
+                    use_test_split=False,
+                    node_idx=None,
+                    save_plot=False,
+                    return_figure=False,
+                    return_series=False,
+                    save_outputs=True,
+                )
+
+                def show_ok() -> None:
+                    messagebox.showinfo(
+                        "Save outputs",
+                        f"Full prediction outputs have been saved to:\n{path}",
+                    )
+
+                self.after(0, show_ok)
+            except RuntimeError as exc:
+                logger.exception("Saving prediction outputs failed (model mismatch): %s", exc)
+
+                def show_error_model() -> None:
+                    messagebox.showerror(
+                        "Model checkpoint mismatch",
+                        "Failed to load checkpoint into current model.\n"
+                        "Please check that:\n"
+                        "- The checkpoint type (GWNet / LSTM / STGformer) matches current model,\n"
+                        "- Hyper-parameters are consistent with the training settings.",
+                    )
+
+                self.after(0, show_error_model)
+            except Exception as exc:
+                logger.exception("Saving prediction outputs failed: %s", exc)
+
+                def show_error() -> None:
+                    messagebox.showerror("Error", f"Save outputs failed: {exc}")
+
+                self.after(0, show_error)
+
+        threading.Thread(target=worker, daemon=True).start()
 
     def _get_current_dataframe(self) -> pd.DataFrame:
         """Helper to get current full dataframe (not only current page)."""
