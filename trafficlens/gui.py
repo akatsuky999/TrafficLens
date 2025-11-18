@@ -584,6 +584,14 @@ class TrafficLensApp(tk.Tk):
             side=tk.LEFT, padx=(8, 0)
         )
 
+        third_row = ttk.Frame(self.toolbar_frame)
+        third_row.pack(side=tk.TOP, fill=tk.X, pady=(2, 0))
+        ttk.Button(
+            third_row,
+            text="Load ST file and 3D plot",
+            command=self.on_load_st_3d_file,
+        ).pack(side=tk.LEFT, padx=(0, 8))
+
     def _build_learning_toolbar(self) -> None:
         self._clear_toolbar()
 
@@ -1575,6 +1583,57 @@ class TrafficLensApp(tk.Tk):
         )
 
         self._show_figure(fig, stats_text)
+
+    def on_load_st_3d_file(self) -> None:
+        path = filedialog.askopenfilename(
+            title="Select spatio-temporal matrix file (.npy or .csv)",
+            filetypes=[
+                ("NumPy array", "*.npy"),
+                ("CSV file", "*.csv"),
+                ("All Files", "*.*"),
+            ],
+        )
+        if not path:
+            return
+
+        try:
+            lower = path.lower()
+            if lower.endswith(".npy"):
+                data = np.load(path, allow_pickle=True)
+                if isinstance(data, dict):
+                    if "st" in data:
+                        arr = data["st"]
+                    elif "pred_full" in data:
+                        arr = data["pred_full"].T
+                    else:
+                        arr = np.array(list(data.values())[0])
+                else:
+                    arr = data
+            else:
+                arr = np.loadtxt(path, delimiter=",")
+
+            if arr.ndim == 1:
+                arr = arr[:, None]
+            t_len, n_nodes = arr.shape
+            index = pd.date_range("2000-01-01", periods=t_len, freq="min")
+            df = pd.DataFrame(arr, index=index)
+            df.columns = [str(i) for i in range(n_nodes)]
+
+            result = st_3d_surface(df)
+            fig = result["figure"]
+            shape = result.get("shape", df.shape)
+            stats_text = (
+                "Spatio-temporal 3D surface (from file)\n\n"
+                f"Time bins (shown): {shape[0]}\n"
+                f"Nodes (shown): {shape[1]}\n"
+                f"Source file: {Path(path).name}"
+            )
+            self._show_figure(fig, stats_text)
+        except Exception as exc:
+            logger.exception("Loading ST matrix file failed: %s", exc)
+            messagebox.showerror(
+                "Error", f"Failed to load spatio-temporal matrix file:\n{exc}"
+            )
 
     def on_close_st_view(self) -> None:
         if self.plot_frame.winfo_ismapped():

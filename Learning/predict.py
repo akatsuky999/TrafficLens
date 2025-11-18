@@ -153,21 +153,6 @@ def run_inference(
         np.save(output_path, {"pred_full": pred_full_avg, "true_full": raw_data.T})
         print(f"Saved full-sequence predictions to {output_path}")
 
-        output_root = "output_data"
-        model_name = cfg["model"]["name"]
-        model_output_dir = os.path.join(output_root, model_name)
-        os.makedirs(model_output_dir, exist_ok=True)
-
-        base_name = os.path.splitext(os.path.basename(output_path))[0]
-
-        pred_npy_path = os.path.join(model_output_dir, f"{base_name}_pred_full.npy")
-        np.save(pred_npy_path, pred_full_avg)
-
-        pred_csv_path = os.path.join(model_output_dir, f"{base_name}_pred_full.csv")
-        np.savetxt(pred_csv_path, pred_full_avg.T, delimiter=",")
-
-        print(f"Also saved full predictions to {model_output_dir} as .npy and .csv")
-
     # 选择一个节点，在完整 raw 时间轴上画 true vs pred
     if node_idx is None:
         node_idx = random.randint(0, N_nodes - 1)
