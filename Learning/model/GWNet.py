@@ -190,61 +190,6 @@ class gwnet(nn.Module):
         x = F.relu(skip)
         x = F.relu(self.end_conv_1(x))
         x = self.end_conv_2(x)
-        # x: (B, out_dim, N, T_conv)
-        # 仅取最后一个时间步，并调整为 (B, N, out_dim=pred_steps)
         x = x[:, :, :, -1]          # (B, out_dim, N)
         x = x.permute(0, 2, 1)      # (B, N, out_dim)
         return x
-
-
-def main():
-    # 配置参数
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    num_nodes = 307       # 典型PEMS数据集传感器数量
-    seq_length = 12       # 输入序列长度
-    batch_size = 32       # 批大小
-    in_dim = 1            # 输入特征维度（流量+速度）
-    out_dim = 3          # 预测序列长度
-    
-    # 生成模拟数据 (batch_size, in_dim, num_nodes, seq_length)
-    x = torch.randn(batch_size, in_dim, num_nodes, seq_length).to(device)
-    print(f'Input shape: {x.shape}')  # 应输出 torch.Size([32, 2, 307, 12])
-    
-    # 初始化模型
-    model = gwnet(
-        device=device,
-        num_nodes=num_nodes,
-        in_dim=in_dim,
-        out_dim=out_dim,
-        supports=[torch.eye(num_nodes).to(device)],  # 模拟邻接矩阵
-        residual_channels=32,
-        dilation_channels=32,
-        skip_channels=256,
-        end_channels=512
-    ).to(device)
-    
-    # 定义损失函数和优化器
-    criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-    
-    # 模拟训练步骤
-    model.train()
-    optimizer.zero_grad()
-    
-    # 前向传播
-    pred = model(x)
-    print(f'Output shape: {pred.shape}')  # 应输出 torch.Size([32, 12, 307, 1])
-    
-    # 计算损失（模拟标签）
-    y = torch.randn_like(pred)
-    loss = criterion(pred, y)
-    
-    # 反向传播
-    loss.backward()
-    optimizer.step()
-    
-    print(f'Loss after one step: {loss.item():.4f}')
-
-
-if __name__ == '__main__':
-    main()

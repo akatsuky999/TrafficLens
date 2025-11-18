@@ -1,13 +1,3 @@
-"""
-Spatio-temporal dataset generator for TrafficLens.
-
-Given a tabular traffic dataset, this module can aggregate traffic flow
-into a time x node matrix, where:
-  - rows are time bins (e.g. every 5 minutes)
-  - columns are node IDs (e.g. gantry codes)
-  - cell values are traffic counts (flows) in that bin at that node.
-"""
-
 from __future__ import annotations
 
 import numpy as np
@@ -20,27 +10,6 @@ def generate_spatiotemporal(
     node_col: str,
     freq_min: int,
 ) -> pd.DataFrame:
-    """
-    Aggregate a flat table into a time x node flow matrix.
-
-    Parameters
-    ----------
-    df : DataFrame
-        Source data (will not be modified).
-    time_col : str
-        Name of the time column (string or datetime-like values).
-    node_col : str
-        Name of the node column (e.g. gantry ID).
-    freq_min : int
-        Aggregation frequency in minutes (must be > 0).
-
-    Returns
-    -------
-    DataFrame
-        Index: time bins (datetime)
-        Columns: sorted unique nodes (str)
-        Values: counts (int) = number of records in each bin/node.
-    """
     if df is None or df.empty:
         raise ValueError("Input dataframe is empty.")
     if time_col not in df.columns or node_col not in df.columns:
