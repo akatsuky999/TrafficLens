@@ -74,6 +74,91 @@ classDiagram
     LearningPackage ..> ModelConfig : reads cfg
 ```
 
+### Data Loading and Filtering
+
+This sequence shows how raw CSV data is loaded into the application and filtered by the user.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant GUI as TrafficLensApp
+    participant Store as TrafficDataStore
+    participant PD as pandas
+
+    User->>GUI: Click "Import File"
+    GUI->>GUI: filedialog.askopenfilename()
+    GUI->>Store: from_files(path)
+    Store->>PD: read_csv(path)
+    PD-->>Store: DataFrame
+    Store-->>GUI: TrafficDataStore instance
+    GUI->>GUI: current_df = store.dataframe
+    GUI->>GUI: _refresh_view()
+
+    User->>GUI: Enter search keyword
+    GUI->>Store: search(keyword)
+    Store->>Store: Filter DataFrame
+    Store-->>GUI: Filtered DataFrame
+    GUI->>GUI: current_df = filtered
+    GUI->>GUI: _refresh_view() (update Treeview)
+```
+
+### Spatio-Temporal Matrix Generation
+
+How raw traffic logs are converted into a Time × Node matrix for 3D visualization.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant GUI as TrafficLensApp
+    participant ST as STGenerator
+    participant Stats as StatsModule
+    participant Matplotlib
+
+    User->>GUI: Click "Generate O/D ST matrix"
+    GUI->>ST: generate_spatiotemporal(df, time_col, node_col, freq)
+    ST->>ST: GroupBy (TimeBin, NodeID)
+    ST->>ST: Unstack & Sort
+    ST-->>GUI: st_df (DataFrame)
+
+    User->>GUI: Click "3D Plot"
+    GUI->>Stats: st_3d_surface(st_df)
+    Stats->>Stats: Interpolate & Smooth Surface
+    Stats->>Matplotlib: plot_surface()
+    Matplotlib-->>Stats: Figure object
+    Stats-->>GUI: Result dict (figure, shape)
+    GUI->>GUI: _show_figure() (embed in canvas)
+```
+
+### Deep Learning Training Flow
+
+The training process is threaded to keep the GUI responsive.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant GUI as TrafficLensApp
+    participant Thread as WorkerThread
+    participant Train as Learning.train
+    participant Model as PyTorchModel
+
+    User->>GUI: Click "Train"
+    GUI->>GUI: _build_learning_config()
+    GUI->>Thread: Start worker thread
+    activate Thread
+    Thread->>Train: run_training(cfg, log_callback, stop_callback)
+
+    loop Epochs
+        Train->>Model: Forward/backward pass
+        Train->>GUI: log_callback(msg)
+        GUI->>GUI: Update log text widget
+        Train->>GUI: stop_callback?
+    end
+
+    Train-->>Thread: Return paths (best/last model)
+    Thread->>GUI: Show success messagebox
+    deactivate Thread
+```
+
 ## Key Features
 
 *   **Data Management**: Batch import/merge of CSV files and folders; Export to CSV, XLSX, NPY.
