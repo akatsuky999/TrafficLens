@@ -112,6 +112,18 @@ class TrafficDataStore:
     def sort(self, column: str, ascending: bool = True) -> pd.DataFrame:
         if column not in self.dataframe.columns:
             raise ValueError(f"Column '{column}' not found.")
+        # Special case: VehicleType is conceptually numeric (e.g. 31, 32, 41),
+        # so we sort it by numeric value instead of lexicographic order.
+        if column == "VehicleType":
+            tmp = self.dataframe.copy()
+            tmp["_sort_key"] = pd.to_numeric(tmp[column], errors="coerce")
+            tmp = tmp.sort_values(
+                by="_sort_key",
+                ascending=ascending,
+                na_position="last",
+            )
+            return tmp.drop(columns="_sort_key").copy()
+
         return self.dataframe.sort_values(by=column, ascending=ascending).copy()
 
     def merge_with_files(self, files: List[Path]) -> "TrafficDataStore":

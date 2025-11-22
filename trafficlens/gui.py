@@ -50,7 +50,7 @@ class TrafficLensApp(tk.Tk):
         super().__init__()
         self.title("TrafficLens - Traffic Data Explorer for Taiwan Highway")
         self.geometry("1100x600")
-        self.minsize(900, 500)
+        self.minsize(10, 10)
 
         self.store: Optional[TrafficDataStore] = store
         if self.store is not None:
@@ -1969,7 +1969,21 @@ class TrafficLensApp(tk.Tk):
                 return
             col = getattr(self, "selected_sort_col", None) or DEFAULT_COLUMNS[0]
             logger.info("Button sort column=%s ascending=%s", col, ascending)
-            self.current_df = self.current_df.sort_values(by=col, ascending=ascending)
+
+            # VehicleType is semantically numeric (e.g. 31, 32, 41), so for sorting
+            # we use its numeric value rather than lexicographic string order.
+            if col == "VehicleType" and col in self.current_df.columns:
+                tmp = self.current_df.copy()
+                tmp["_sort_key"] = pd.to_numeric(tmp[col], errors="coerce")
+                tmp = tmp.sort_values(
+                    by="_sort_key",
+                    ascending=ascending,
+                    na_position="last",
+                )
+                self.current_df = tmp.drop(columns="_sort_key")
+            else:
+                self.current_df = self.current_df.sort_values(by=col, ascending=ascending)
+
             self.sorted_col = col
             self.sorted_ascending = ascending
             self.current_page = 1
