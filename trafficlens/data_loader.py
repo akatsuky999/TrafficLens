@@ -1,7 +1,3 @@
-"""
-Utilities for loading and querying traffic CSV data.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass
