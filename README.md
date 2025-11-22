@@ -6,7 +6,7 @@
 
 **TrafficLens** is a Python-based desktop application designed for analyzing, visualizing, and modeling traffic data. Built with **Tkinter** for the GUI, **pandas** for data manipulation, **Matplotlib** for visualization, and **PyTorch** for deep learning-based traffic flow forecasting. 
 
-Source: 交通資料庫 (traffic database) of the Freeway Bureau of Taiwan. https://tisvcloud.freeway.gov.tw/history/TDCS/M06ALinks to an external site.
+Source: 交通資料庫 (traffic database) of the Freeway Bureau of Taiwan. https://tisvcloud.freeway.gov.tw/history/TDCS/M06ALinks
 
 ## System Architecture
 
