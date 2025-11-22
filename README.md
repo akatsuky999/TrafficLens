@@ -1,5 +1,7 @@
 # TrafficLens: Desktop Traffic Viewer and Benchmark for Taiwan Highways
 
+![TrafficLens Logo](pic/logo.png)
+
 **TrafficLens** is a Python-based desktop application designed for analyzing, visualizing, and modeling traffic data. Built with **Tkinter** for the GUI, **pandas** for data manipulation, **Matplotlib** for visualization, and **PyTorch** for deep learning-based traffic flow forecasting.
 
 ## System Architecture
@@ -109,7 +111,7 @@ Transforms raw trajectory logs into **Spatio-Temporal (ST) flow matrices**.
 
 ### 5. Deep Learning Benchmarks
 Built-in environment for benchmarking traffic prediction algorithms on Taiwan highway data.
-*   **Models**: **GWNet**, **LSTM**, and **STGformer** (enhanced with adaptive adjacency matrix).
+*   **Models**: [GWNet](https://arxiv.org/abs/1906.00121), **LSTM**, and [STGformer](https://arxiv.org/abs/2410.00385) (enhanced with an adaptive adjacency matrix in this project).
 *   **Workflow**:
     1.  Configure hyperparameters (device, window size, early stopping).
     2.  **Train**: Asynchronous background training with real-time log updates.
