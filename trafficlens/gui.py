@@ -26,9 +26,50 @@ from .stats import (
 )
 from .view_filters import build_view_hint, apply_view_filter, get_field_kind
 from .ST_generator import generate_spatiotemporal, generate_spatiotemporal_from_tripinfo
-from Learning.model_config import get_default_config
-from Learning.train import run_training
-from Learning.predict import run_inference
+
+
+_LEARNING_IMPORT_ERROR: Exception | None = None
+
+
+def _ensure_learning_available(show_message: bool = False) -> bool:
+    """
+    Try to import optional Learning modules (PyTorch / timm stack).
+
+    Returns True if available; otherwise keeps the rest of the GUI usable.
+    """
+    global _LEARNING_IMPORT_ERROR
+
+    # Already imported successfully in this process
+    if (
+        "get_default_config" in globals()
+        and "run_training" in globals()
+        and "run_inference" in globals()
+    ):
+        return True
+
+    try:
+        from Learning.model_config import get_default_config as _get_default_config
+        from Learning.train import run_training as _run_training
+        from Learning.predict import run_inference as _run_inference
+    except ImportError as exc:
+        _LEARNING_IMPORT_ERROR = exc
+        if show_message:
+            messagebox.showwarning(
+                "Learning dependencies missing",
+                "The 'Learning' functions require additional Python packages "
+                "(for example PyTorch and timm).\n\n"
+                "You can still use all non-learning features without these packages.\n\n"
+                "To enable Learning, please install the extra dependencies, e.g.:\n"
+                "  pip install torch timm",
+            )
+        return False
+
+    globals()["get_default_config"] = _get_default_config
+    globals()["run_training"] = _run_training
+    globals()["run_inference"] = _run_inference
+    _LEARNING_IMPORT_ERROR = None
+    return True
+
 
 class _DummyLogger:
     def info(self, *args, **kwargs) -> None:
@@ -767,6 +808,9 @@ class TrafficLensApp(tk.Tk):
             self.learning_tab_btn.configure(style="TabActive.TButton")
 
     def _build_learning_config(self) -> dict:
+        if not _ensure_learning_available(show_message=True):
+            return {}
+
         cfg = get_default_config()
         model_name = self.learning_model_var.get().strip().lower()
         if model_name:
@@ -834,6 +878,9 @@ class TrafficLensApp(tk.Tk):
         return cfg
 
     def on_learning_hyperparams(self) -> None:
+        if not _ensure_learning_available(show_message=True):
+            return
+
         model_name = self.learning_model_var.get().strip().lower()
         if not model_name:
             messagebox.showerror("Error", "Please select a model first.")
@@ -957,6 +1004,9 @@ class TrafficLensApp(tk.Tk):
 
     def on_learning_train(self) -> None:
         cfg = self._build_learning_config()
+        if not cfg:
+            return
+
         self.learning_stop_training = False
         self.learning_view_mode = "log"
         self._ensure_learning_log_view()
@@ -1012,14 +1062,15 @@ class TrafficLensApp(tk.Tk):
 
     def on_learning_predict(self) -> None:
         cfg = self._build_learning_config()
+        if not cfg:
+            return
+
         checkpoint = self.learning_checkpoint_path
         if not checkpoint:
             messagebox.showinfo(
                 "Info", "Please load a checkpoint (.pth) first using 'Load .pth'."
             )
             return
-
-        output_path = "prediction.npy"
 
         idx_str = self.learning_node_index_var.get().strip()
         node_idx = None
@@ -1029,6 +1080,8 @@ class TrafficLensApp(tk.Tk):
             except ValueError:
                 messagebox.showerror("Error", "Node index must be an integer (0-based).")
                 return
+
+        output_path = "prediction.npy"
 
         def worker() -> None:
             try:
@@ -1088,6 +1141,9 @@ class TrafficLensApp(tk.Tk):
 
     def on_learning_save_outputs(self) -> None:
         cfg = self._build_learning_config()
+        if not cfg:
+            return
+
         checkpoint = self.learning_checkpoint_path
         if not checkpoint:
             messagebox.showinfo(
