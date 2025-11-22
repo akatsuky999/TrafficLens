@@ -1621,6 +1621,20 @@ class TrafficLensApp(tk.Tk):
 
             result = st_3d_surface(df)
             fig = result["figure"]
+            # For 3D plots loaded from file, swap the displayed time/node axis labels
+            # to match the user's interpretation for prediction exports, without
+            # changing the internal data orientation or the normal 3D plot behavior.
+            try:
+                if fig.axes:
+                    ax = fig.axes[0]
+                    x_label = ax.get_xlabel()
+                    y_label = ax.get_ylabel()
+                    ax.set_xlabel(y_label)
+                    ax.set_ylabel(x_label)
+            except Exception:
+                # If anything goes wrong while adjusting labels, fall back silently.
+                pass
+
             shape = result.get("shape", df.shape)
             stats_text = (
                 "Spatio-temporal 3D surface (from file)\n\n"
