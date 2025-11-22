@@ -1,5 +1,5 @@
 <h1 align="left">
-  <img src="pic/logo.png" alt="TrafficLens logo" height="40" style="vertical-align: middle; margin-right: 10px;">
+  <img src="pic/logo.png" alt="TrafficLens logo" height="50" style="vertical-align: middle; margin-right: 8px;">
   Desktop Traffic Viewer and Benchmark for Taiwan Highways
 </h1>
 
