@@ -8,6 +8,13 @@
 
 Source: 交通資料庫 (traffic database) of the Freeway Bureau of Taiwan. https://tisvcloud.freeway.gov.tw/history/TDCS/M06ALinks
 
+<p align="center">
+  <img src="pic/exp1.png" alt="Sample match" width="80%">
+</p>
+<p align="center">
+  <img src="pic/exp2.png" alt="Sample match" width="80%">
+</p>
+
 ## System Architecture
 
 The system follows a modular design separating GUI, data handling, and analysis logic.
