@@ -1,13 +1,9 @@
 import os
 from typing import Optional
-
 import numpy as np
 import torch
 
-
 class EarlyStopping:
-
-
     def __init__(
         self,
         patience: int = 10,
@@ -37,7 +33,6 @@ class EarlyStopping:
             self.best_value = value
             self._save_checkpoint(value, model)
         elif score < self.best_score + self.delta:
-            # 没有显著提升
             self.counter += 1
             if self.verbose:
                 print(f"EarlyStopping counter: {self.counter} / {self.patience}")
