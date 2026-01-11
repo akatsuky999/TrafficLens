@@ -2,7 +2,7 @@
   <img src="pic/logo3.png" alt="TrafficLens logo" height="80">
 </p>
 
-# TrafficLens: Desktop Traffic Viewer and Benchmark for Taiwan Highways
+# TrafficLens: A Desktop Traffic Viewer and Benchmark for Taiwan Highways
 
 **TrafficLens** is a Python-based desktop application designed for analyzing, visualizing, and modeling traffic data. Built with **Tkinter** for the GUI, **pandas** for data manipulation, **Matplotlib** for visualization, and **PyTorch** for deep learning-based traffic flow forecasting. 
 
